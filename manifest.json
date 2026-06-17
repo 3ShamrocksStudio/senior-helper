@@ -1,0 +1,14 @@
+{
+  "name": "עזרה — עוזר דיגיטלי בעברית פשוטה",
+  "short_name": "עזרה",
+  "description": "עוזר דיגיטלי שמדריך מבוגרים צעד-אחר-צעד, בעברית פשוטה וברורה.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FBF6EC",
+  "theme_color": "#0E5F52",
+  "icons": [
+    { "src": "3shamrocks.png", "sizes": "905x133", "type": "image/png", "purpose": "any" }
+  ]
+}

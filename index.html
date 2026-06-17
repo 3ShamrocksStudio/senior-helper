@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E5F52">
+<title>עזרה — עוזר דיגיטלי בעברית פשוטה</title>
+<meta name="description" content="עזרה — עוזר דיגיטלי שמדריך אתכם צעד-אחר-צעד, בעברית פשוטה וברורה.">
+<link rel="manifest" href="manifest.json">
+<style>
+/* ============================================================
+   עזרה (Ezra) — plain-Hebrew digital helper for seniors
+   Single-file PoC · GUIDE-ME mode only (no real automation)
+   Built by 3Shamrocks Studio
+   ============================================================ */
+
+/* ---- Design tokens: warm, calm, very high contrast (AAA-ish) ---- */
+:root{
+  --paper:#FBF6EC;          /* warm off-white, no harsh glare */
+  --paper-2:#FFFFFF;
+  --ink:#15242B;            /* near-black ink on paper ≈ 14:1 contrast */
+  --ink-soft:#3A4A52;
+  --line:#D8CDB8;
+  --brand:#0E5F52;          /* deep, trustworthy teal-green */
+  --brand-ink:#073A32;
+  --brand-soft:#E4F0EC;
+  --accent:#B4531A;         /* warm terracotta for "listen / voice" */
+  --accent-soft:#FBEBDF;
+  --warn:#8A4B00;           /* safety amber, dark enough for AAA text */
+  --warn-soft:#FCEFD6;
+  --warn-line:#E7B765;
+  --ok:#1E6B3A;
+  --focus:#0B3B82;
+  --shadow:0 6px 22px rgba(21,36,43,.10);
+  --radius:22px;
+  --tap:64px;               /* minimum touch target */
+  --fs: 1;                  /* user font-scale multiplier (JS) */
+}
+[data-mode="dark"]{
+  --paper:#10191D; --paper-2:#16242A; --ink:#F3EEE2; --ink-soft:#C4CDD1;
+  --line:#2C3A40; --brand:#5FD3BD; --brand-ink:#BFEFE5; --brand-soft:#16302B;
+  --accent:#F0925A; --accent-soft:#3A2415; --warn:#F0C669; --warn-soft:#2E2510;
+  --warn-line:#5A4A22; --ok:#7FD49A; --focus:#9CC2FF; --shadow:0 6px 22px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Heebo","Assistant",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:calc(20px * var(--fs));
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+@media (max-width:480px){ body{ font-size:calc(19px * var(--fs)); } }
+
+button{ font-family:inherit; cursor:pointer; }
+:focus-visible{ outline:4px solid var(--focus); outline-offset:3px; border-radius:8px; }
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+
+/* ---------- App shell ---------- */
+.wrap{ max-width:1040px; margin:0 auto; padding:0 16px 40px; }
+
+/* ---------- Top bar ---------- */
+header.bar{
+  position:sticky; top:0; z-index:30;
+  background:var(--paper);
+  border-bottom:2px solid var(--line);
+}
+.bar-in{
+  max-width:1040px; margin:0 auto; padding:10px 16px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.brand{ display:flex; align-items:center; gap:12px; margin-inline-end:auto; }
+.brand .mark{
+  width:54px; height:54px; border-radius:16px; background:var(--brand);
+  color:#fff; display:grid; place-items:center; font-size:30px; flex:none;
+}
+.brand b{ font-size:calc(1.5rem); color:var(--brand-ink); line-height:1; }
+.brand .sub{ display:block; font-size:.8rem; font-weight:500; color:var(--ink-soft); margin-top:3px; }
+[data-mode="dark"] .brand b{ color:var(--brand); }
+
+.tools{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tbtn{
+  min-height:var(--tap); min-width:var(--tap); padding:0 16px;
+  border:2px solid var(--line); background:var(--paper-2); color:var(--ink);
+  border-radius:14px; font-size:1rem; font-weight:700;
+  display:inline-flex; align-items:center; gap:8px; justify-content:center;
+}
+.tbtn[aria-pressed="true"]{ background:var(--brand); color:#fff; border-color:var(--brand); }
+.tbtn .ic{ font-size:1.3em; line-height:1; }
+.fsgroup{ display:inline-flex; border:2px solid var(--line); border-radius:14px; overflow:hidden; }
+.fsgroup button{
+  min-height:var(--tap); min-width:52px; border:0; background:var(--paper-2);
+  color:var(--ink); font-weight:800; border-inline-start:2px solid var(--line);
+}
+.fsgroup button:first-child{ border-inline-start:0; }
+.fsgroup button[aria-pressed="true"]{ background:var(--brand); color:#fff; }
+.fsgroup .a1{font-size:.85rem} .fsgroup .a2{font-size:1.05rem} .fsgroup .a3{font-size:1.3rem}
+
+/* ---------- Hero / greeting ---------- */
+.hero{ text-align:center; padding:30px 8px 10px; }
+.hero h1{ font-size:calc(2.3rem); margin:.2em 0 .15em; line-height:1.15; }
+.hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .8em; max-width:30ch; }
+
+/* big "tell me" voice prompt */
+.askvoice{
+  display:inline-flex; align-items:center; gap:14px; margin:6px auto 4px;
+  background:var(--accent); color:#fff; border:0; border-radius:20px;
+  padding:16px 26px; font-size:1.2rem; font-weight:800; box-shadow:var(--shadow);
+  min-height:var(--tap);
+}
+.askvoice .ic{ font-size:1.6em; }
+.askvoice:active{ transform:translateY(1px); }
+.vhint{ display:block; font-size:.95rem; color:var(--ink-soft); margin-top:8px; min-height:1.4em; }
+
+/* ---------- Task grid ---------- */
+.section-h{ font-size:1.25rem; font-weight:800; margin:26px 6px 12px; color:var(--ink); }
+.grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+@media (min-width:560px){ .grid{ grid-template-columns:1fr 1fr; } }
+@media (min-width:900px){ .grid{ grid-template-columns:1fr 1fr 1fr; } }
+
+.card{
+  background:var(--paper-2); border:2px solid var(--line); border-radius:var(--radius);
+  padding:22px 20px; text-align:start; display:flex; align-items:center; gap:18px;
+  box-shadow:var(--shadow); width:100%; color:var(--ink); transition:transform .12s, border-color .12s;
+  min-height:104px;
+}
+.card:hover{ border-color:var(--brand); transform:translateY(-3px); }
+.card:active{ transform:translateY(0); }
+.card .emoji{
+  width:66px; height:66px; flex:none; border-radius:18px; display:grid; place-items:center;
+  font-size:34px; background:var(--brand-soft);
+}
+.card .txt b{ display:block; font-size:1.3rem; line-height:1.2; }
+.card .txt span{ display:block; font-size:1rem; color:var(--ink-soft); margin-top:4px; }
+.card .go{ margin-inline-start:auto; font-size:1.8rem; color:var(--brand); flex:none; }
+
+/* ---------- Safety strip ---------- */
+.safety{
+  margin:24px 0 4px; background:var(--warn-soft); border:2px solid var(--warn-line);
+  border-radius:var(--radius); padding:18px 20px; display:flex; gap:16px; align-items:flex-start;
+}
+.safety .ic{ font-size:1.9rem; flex:none; }
+.safety h3{ margin:0 0 4px; font-size:1.15rem; color:var(--warn); }
+.safety p{ margin:0; font-size:1rem; color:var(--ink); }
+
+/* ---------- Walkthrough view ---------- */
+.view{ display:none; }
+.view.active{ display:block; animation:fade .25s ease; }
+@keyframes fade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+.wt-top{ display:flex; align-items:center; gap:14px; padding:22px 4px 6px; flex-wrap:wrap; }
+.backbtn{
+  min-height:var(--tap); padding:0 20px; border:2px solid var(--line); background:var(--paper-2);
+  color:var(--ink); border-radius:14px; font-size:1.05rem; font-weight:800;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.wt-title{ display:flex; align-items:center; gap:14px; }
+.wt-title .emoji{ width:58px;height:58px;border-radius:16px;background:var(--brand-soft);display:grid;place-items:center;font-size:30px;flex:none;}
+.wt-title b{ font-size:1.5rem; }
+
+/* progress */
+.progress{ margin:18px 4px 0; }
+.progress .bar{ height:14px; background:var(--line); border-radius:99px; overflow:hidden; }
+.progress .fill{ height:100%; background:var(--brand); width:0; border-radius:99px; transition:width .3s; }
+.progress .lbl{ font-size:1rem; color:var(--ink-soft); margin-top:8px; font-weight:700; }
+
+/* step panel */
+.step{
+  background:var(--paper-2); border:2px solid var(--line); border-radius:var(--radius);
+  padding:26px 24px; margin-top:16px; box-shadow:var(--shadow);
+}
+.step .num{
+  width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;
+  display:grid;place-items:center;font-size:1.5rem;font-weight:800;margin-bottom:14px;
+}
+.step h2{ font-size:1.6rem; margin:0 0 10px; line-height:1.25; }
+.step .body{ font-size:1.2rem; color:var(--ink); }
+.step .body .em{ background:var(--brand-soft); border-radius:8px; padding:1px 8px; font-weight:800; color:var(--brand-ink); }
+[data-mode="dark"] .step .body .em{ color:var(--brand); }
+
+/* simulated phone/screen mock */
+.mock{
+  margin:20px auto 4px; max-width:330px; background:var(--paper); border:3px solid var(--ink-soft);
+  border-radius:26px; padding:16px; box-shadow:var(--shadow);
+}
+.mock .scr-bar{ display:flex; align-items:center; gap:8px; font-size:.9rem; color:var(--ink-soft); margin-bottom:10px; padding:0 4px; }
+.mock .scr-bar .dot{ width:10px;height:10px;border-radius:50%;background:var(--line); }
+.mock .bubble{
+  background:var(--brand-soft); border-radius:16px; padding:12px 14px; margin:8px 0; font-size:1.05rem;
+}
+.mock .bubble.me{ background:var(--brand); color:#fff; margin-inline-start:30px; }
+.mock .field{ background:var(--paper-2); border:2px solid var(--line); border-radius:14px; padding:14px; font-size:1.05rem; margin:10px 0; color:var(--ink-soft); }
+.mock .key{ background:var(--accent); color:#fff; border-radius:14px; padding:13px; text-align:center; font-weight:800; margin-top:8px; }
+.mock .bigicon{ font-size:62px; text-align:center; padding:8px 0; }
+.mock .label{ text-align:center; font-weight:800; font-size:1.1rem; margin-top:4px; }
+
+/* in-step tip (scam-safety etc.) */
+.tip{
+  margin-top:18px; background:var(--warn-soft); border:2px solid var(--warn-line);
+  border-radius:16px; padding:14px 16px; font-size:1.05rem; display:flex; gap:12px; align-items:flex-start;
+}
+.tip .ic{ font-size:1.4rem; flex:none; }
+.tip b{ color:var(--warn); }
+
+/* step actions */
+.actions{ display:flex; gap:14px; margin-top:22px; flex-wrap:wrap; }
+.btn{
+  min-height:var(--tap); padding:0 28px; border-radius:16px; font-size:1.2rem; font-weight:800;
+  border:2px solid transparent; display:inline-flex; align-items:center; gap:10px; justify-content:center;
+}
+.btn.primary{ background:var(--brand); color:#fff; flex:1 1 auto; }
+.btn.primary:active{ transform:translateY(1px); }
+.btn.ghost{ background:var(--paper-2); color:var(--ink); border-color:var(--line); }
+.btn.listen{ background:var(--accent); color:#fff; }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+.helprow{ margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.linkbtn{
+  background:none; border:0; color:var(--brand); font-weight:800; font-size:1.05rem;
+  text-decoration:underline; min-height:var(--tap); padding:0 4px; text-underline-offset:4px;
+}
+[data-mode="dark"] .linkbtn{ color:var(--brand); }
+
+/* done panel */
+.done{ text-align:center; padding:30px 18px; }
+.done .big{ font-size:64px; }
+.done h2{ font-size:1.8rem; margin:.2em 0; }
+.done p{ font-size:1.15rem; color:var(--ink-soft); }
+
+/* ---------- Modal (family helper / voice / info) ---------- */
+.modal-bg{
+  position:fixed; inset:0; background:rgba(10,16,18,.55); z-index:50;
+  display:none; align-items:center; justify-content:center; padding:18px;
+}
+.modal-bg.open{ display:flex; }
+.modal{
+  background:var(--paper-2); border-radius:24px; max-width:480px; width:100%;
+  padding:26px 24px; box-shadow:var(--shadow); border:2px solid var(--line); max-height:92vh; overflow:auto;
+}
+.modal h2{ font-size:1.5rem; margin:0 0 6px; }
+.modal p{ font-size:1.05rem; color:var(--ink-soft); }
+.modal label{ display:block; font-weight:800; font-size:1.05rem; margin:16px 0 6px; }
+.modal input{
+  width:100%; min-height:var(--tap); border:2px solid var(--line); border-radius:14px;
+  padding:0 16px; font-size:1.15rem; background:var(--paper); color:var(--ink);
+}
+.modal .row{ display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
+.modal .row .btn{ flex:1 1 auto; }
+.helper-chip{
+  display:inline-flex; align-items:center; gap:10px; background:var(--brand-soft);
+  border-radius:99px; padding:8px 16px; font-weight:800; color:var(--brand-ink); margin-top:10px;
+}
+[data-mode="dark"] .helper-chip{ color:var(--brand); }
+
+/* ---------- Footer (logo on LIGHT backing per studio rule) ---------- */
+footer.credit{
+  margin-top:40px; padding:26px 16px; text-align:center;
+}
+footer.credit .badge{
+  display:inline-block; background:#FFFFFF; border:1px solid #E4DCC9; border-radius:14px;
+  padding:12px 20px; box-shadow:var(--shadow);
+}
+footer.credit .badge img{ display:block; height:30px; width:auto; }
+footer.credit .cr{ display:block; margin-top:12px; font-size:.95rem; color:var(--ink-soft); }
+footer.credit .cr b{ color:var(--ink); }
+
+/* toast */
+.toast{
+  position:fixed; inset-block-end:24px; inset-inline:0; margin:auto; width:max-content; max-width:90%;
+  background:var(--ink); color:var(--paper); padding:16px 24px; border-radius:16px; font-size:1.1rem;
+  font-weight:700; z-index:60; box-shadow:var(--shadow); opacity:0; transform:translateY(20px);
+  transition:opacity .25s, transform .25s; pointer-events:none; text-align:center;
+}
+.toast.show{ opacity:1; transform:none; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">🤝</div>
+      <div>
+        <b id="brandName">עזרה</b>
+        <span class="sub" id="brandTag">עוזר דיגיטלי בעברית פשוטה</span>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="fsgroup" role="group" aria-label="גודל הטקסט">
+        <button class="a1" data-fs="1"   aria-pressed="true"  aria-label="טקסט רגיל">א</button>
+        <button class="a2" data-fs="1.15" aria-pressed="false" aria-label="טקסט גדול">א</button>
+        <button class="a3" data-fs="1.35" aria-pressed="false" aria-label="טקסט גדול מאוד">א</button>
+      </div>
+      <button class="tbtn" id="voiceToggle" aria-pressed="true">
+        <span class="ic" aria-hidden="true">🔊</span><span>הקראה</span>
+      </button>
+      <button class="tbtn" id="darkToggle" aria-pressed="false" aria-label="מצב כהה">
+        <span class="ic" aria-hidden="true">🌙</span>
+      </button>
+      <button class="tbtn" id="helperBtn">
+        <span class="ic" aria-hidden="true">👪</span><span>בן משפחה</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== HOME VIEW ===================== -->
+  <section id="homeView" class="view active" aria-label="מסך הבית">
+    <div class="hero">
+      <h1>שלום! <span dir="rtl">במה אפשר לעזור?</span></h1>
+      <p class="lead">בחרו מה תרצו לעשות — ואני אדריך אתכם, צעד אחר צעד, בלי למהר.</p>
+      <button class="askvoice" id="askVoiceBtn">
+        <span class="ic" aria-hidden="true">🎤</span>
+        <span>פשוט תגידו לי מה צריך</span>
+      </button>
+      <span class="vhint" id="vhint" aria-live="polite"></span>
+    </div>
+
+    <h2 class="section-h">המשימות הנפוצות</h2>
+    <div class="grid" id="taskGrid"></div>
+
+    <div class="safety">
+      <span class="ic" aria-hidden="true">🛡️</span>
+      <div>
+        <h3>טיפ ביטחון קטן</h3>
+        <p>אם מישהו לוחץ עליכם לשלם, למסור סיסמה או קוד — <b>עצרו</b>. אף גוף אמיתי לא ידחק בכם.
+        תמיד אפשר לעצור, להתייעץ עם בן משפחה, ולחזור אחר כך.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WALKTHROUGH VIEW ===================== -->
+  <section id="taskView" class="view" aria-label="הדרכה צעד אחר צעד">
+    <div class="wt-top">
+      <button class="backbtn" id="backHome"><span aria-hidden="true">→</span> חזרה</button>
+      <div class="wt-title">
+        <div class="emoji" id="wtEmoji" aria-hidden="true">💬</div>
+        <b id="wtTitle">משימה</b>
+      </div>
+    </div>
+
+    <div class="progress">
+      <div class="bar"><div class="fill" id="progFill"></div></div>
+      <div class="lbl" id="progLbl">צעד 1 מתוך 4</div>
+    </div>
+
+    <div id="stepHost" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<!-- ===================== FOOTER (logo on LIGHT backing) ===================== -->
+<footer class="credit">
+  <span class="badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></span>
+  <span class="cr"><b id="ftName">עזרה</b> — אב-טיפוס · © 2026 <b>3Shamrocks Studio</b> · כל הזכויות שמורות</span>
+</footer>
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" id="modalCard"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+(function(){
+
+/* =========================================================
+   BRAND — product name lives in ONE place (swappable).
+   Change BRAND.name to rename the whole app.
+   "Ezra" / "עזרה" is PROVISIONAL, pending a naming check.
+   ========================================================= */
+var BRAND = {
+  name: "עזרה",
+  nameEn: "Ezra",
+  tag:  "עוזר דיגיטלי בעברית פשוטה"
+};
+
+/* ---- tiny helpers ---- */
+var $ = function(s, r){ return (r||document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+
+/* ---- persistent settings (localStorage) ---- */
+var store = {
+  load:function(){ try{ return JSON.parse(localStorage.getItem("ezra.v1")||"{}"); }catch(e){ return {}; } },
+  save:function(o){ try{ localStorage.setItem("ezra.v1", JSON.stringify(o)); }catch(e){} }
+};
+var settings = Object.assign({ fs:1, dark:false, voice:true, helper:null, done:0 }, store.load());
+function persist(){ store.save(settings); }
+
+/* =========================================================
+   TASK CONTENT — simulated guided walkthroughs.
+   Each step: {n, title, body(HTML), mock(HTML), tip}
+   ========================================================= */
+var TASKS = [
+  {
+    id:"whatsapp", emoji:"💬", title:"שליחת הודעה בוואטסאפ",
+    subtitle:"לכתוב ולשלוח הודעה לחבר או למשפחה",
+    steps:[
+      { title:"פתחו את וואטסאפ", body:'מצאו את האייקון הירוק עם השפופרת הלבנה במסך הטלפון, והקישו עליו פעם אחת.',
+        mock:'<div class="bigicon">🟢</div><div class="label">WhatsApp</div>' },
+      { title:"בחרו עם מי לדבר", body:'תיפתח רשימת אנשים. הקישו על <span class="em">השם</span> של מי שאתם רוצים לכתוב לו. אם יש הרבה שמות — אפשר לחפש למעלה.',
+        mock:'<div class="scr-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>אנשי הקשר</span></div><div class="field">🔎 חיפוש…</div><div class="bubble">👩 רותי — הבת</div><div class="bubble">👦 דני — הנכד</div>' },
+      { title:"כתבו את ההודעה", body:'הקישו על השורה למטה שכתוב בה <span class="em">"הקלדת הודעה"</span>. יופיע מקלדת — הקלידו מה שתרצו לומר. לא נורא אם יש שגיאה.',
+        mock:'<div class="bubble me">שלום רותי, הכול טוב כאן 🙂</div><div class="field">הקלדת הודעה…</div>' },
+      { title:"שלחו", body:'כשסיימתם — הקישו על כפתור <span class="em">השליחה</span> (חץ או מטוס נייר) בצד. וזהו, ההודעה נשלחה!',
+        mock:'<div class="bubble me">שלום רותי, הכול טוב כאן 🙂</div><div class="key">➤ שליחה</div>' }
+    ]
+  },
+  {
+    id:"video", emoji:"📹", title:"שיחת וידאו עם המשפחה",
+    subtitle:"לראות ולדבר עם המשפחה פנים אל פנים",
+    steps:[
+      { title:"בחרו אפליקציה", body:'אפשר להתקשר בוידאו דרך <span class="em">וואטסאפ</span> או דרך אפליקציה אחרת שהמשפחה משתמשת בה. הקישו עליה.',
+        mock:'<div class="bigicon">🟢</div><div class="label">וידאו דרך וואטסאפ</div>' },
+      { title:"בחרו את מי להתקשר", body:'הקישו על השם של בן המשפחה שאתם רוצים לראות.',
+        mock:'<div class="bubble">👩 רותי — הבת</div><div class="bubble">👦 דני — הנכד</div>' },
+      { title:"הקישו על מצלמת הוידאו", body:'בראש המסך יש אייקון של <span class="em">מצלמה</span> 🎥. הקישו עליו כדי להתחיל שיחת וידאו.',
+        mock:'<div class="scr-bar"><span>רותי</span></div><div class="bigicon">🎥</div><div class="label">התקשרו בוידאו</div>' },
+      { title:"חכו שיענו", body:'עכשיו מחכים שניה-שתיים. כשעונים — תראו את הפנים שלהם על המסך. החזיקו את הטלפון מול הפנים שלכם, ודברו רגיל.',
+        tip:'אם לא עונים — זה בסדר גמור. אפשר לנסות שוב מאוחר יותר, או לשלוח הודעה.',
+        mock:'<div class="bigicon">📞</div><div class="label">מתקשר…</div>' }
+    ]
+  },
+  {
+    id:"email", emoji:"✉️", title:"קריאה ומענה לאימייל",
+    subtitle:"לפתוח דואר אלקטרוני ולענות עליו",
+    steps:[
+      { title:"פתחו את הדואר", body:'הקישו על אפליקציית הדואר (לרוב אייקון של <span class="em">מעטפה</span> ✉️).',
+        mock:'<div class="bigicon">✉️</div><div class="label">הדואר שלי</div>' },
+      { title:"בחרו הודעה לקרוא", body:'תופיע רשימה. הודעות חדשות לרוב <span class="em">מודגשות</span>. הקישו על הודעה כדי לפתוח ולקרוא אותה.',
+        mock:'<div class="bubble"><b>מרפאה — תזכורת תור</b><br><small>היום, 09:14</small></div><div class="bubble">חברת החשמל<br><small>אתמול</small></div>' },
+      { title:"רגע של זהירות", body:'לפני שאתם לוחצים על קישור או כפתור בתוך מייל — בדקו מי השולח. אם זה לא מוכר, או מבקשים סיסמה/תשלום דחוף — אל תלחצו.',
+        tip:'<b>חוק הזהב:</b> בנק או גוף רשמי לעולם לא יבקשו סיסמה או קוד במייל. בספק — שאלו בן משפחה.' },
+      { title:"לענות", body:'אם תרצו להשיב, הקישו על <span class="em">"השב"</span> (חץ חוזר ↩️), כתבו את התשובה, והקישו <span class="em">"שלח"</span>.',
+        mock:'<div class="field">תודה על העדכון, נתראה בתור 🙂</div><div class="key">➤ שלח</div>' }
+    ]
+  },
+  {
+    id:"bill", emoji:"🧾", title:"בדיקה ותשלום של חשבון",
+    subtitle:"לראות כמה לשלם — ולשלם בבטחה",
+    steps:[
+      { title:"מצאו את החשבון", body:'פתחו את האתר או האפליקציה הרשמית (למשל חברת החשמל או המים). היכנסו <span class="em">רק</span> דרך אתר שאתם מכירים — לא דרך קישור שהגיע בהודעה.',
+        tip:'<b>חשוב:</b> אל תיכנסו לתשלום מקישור ב-SMS או במייל. תמיד פתחו את האתר בעצמכם.' },
+      { title:"בדקו את הסכום", body:'מצאו את <span class="em">הסכום לתשלום</span> ואת <span class="em">תאריך הפירעון</span>. ודאו שזה הגיוני ומוכר לכם. אם משהו נראה מוזר — עצרו.',
+        mock:'<div class="scr-bar"><span>חשבון חשמל</span></div><div class="bubble">לתשלום: <b>248 ₪</b></div><div class="bubble">עד תאריך: 30/6</div>' },
+      { title:"הזינו פרטי תשלום", body:'הקישו "תשלום", הזינו את פרטי כרטיס האשראי בשדות המתאימים. ודאו שכתובת האתר מתחילה ב-<span class="em">https</span> ויש סמל מנעול 🔒.',
+        mock:'<div class="field">💳 מספר כרטיס</div><div class="field">תוקף · CVV</div>' },
+      { title:"אשרו ושמרו אישור", body:'הקישו <span class="em">"אשר תשלום"</span>. כדאי לצלם מסך של האישור או לשמור אותו, ליתר ביטחון.',
+        tip:'מרגישים לא בטוחים? זה רגע מצוין לבקש מבן משפחה ללוות אתכם. אין בזה שום בעיה.',
+        mock:'<div class="key">🔒 אשר תשלום</div>' }
+    ]
+  },
+  {
+    id:"doctor", emoji:"🩺", title:"קביעת תור לרופא",
+    subtitle:"לתאם תור דרך הקופה",
+    steps:[
+      { title:"פתחו את אפליקציית הקופה", body:'פתחו את האפליקציה של קופת החולים שלכם (כללית, מכבי, מאוחדת או לאומית).',
+        mock:'<div class="bigicon">🏥</div><div class="label">קופת חולים</div>' },
+      { title:"בחרו ‘זימון תור’", body:'חפשו כפתור שכתוב עליו <span class="em">"זימון תור"</span> או "תורים", והקישו עליו.',
+        mock:'<div class="bubble">📅 זימון תור</div><div class="bubble">💊 מרשמים</div><div class="bubble">📄 תוצאות בדיקה</div>' },
+      { title:"בחרו רופא וסוג תור", body:'בחרו את <span class="em">הרופא</span> או סוג התור (למשל רופא משפחה). תופיע רשימת זמנים פנויים.',
+        mock:'<div class="bubble">ד"ר כהן — רפואת משפחה</div>' },
+      { title:"בחרו זמן ואשרו", body:'הקישו על <span class="em">יום ושעה</span> שנוחים לכם, ואז על "אישור". כדאי לרשום לעצמכם את התאריך גם על לוח או פתק.',
+        mock:'<div class="bubble me">יום שלישי · 10:30</div><div class="key">✓ אשר תור</div>' }
+    ]
+  },
+  {
+    id:"form", emoji:"📝", title:"מילוי טופס באינטרנט",
+    subtitle:"למלא פרטים בטופס דיגיטלי",
+    steps:[
+      { title:"קראו לאט מה מבקשים", body:'בטופס יש <span class="em">שדות</span> למילוי (שם, טלפון וכו׳). אין צורך למהר — קראו כל שורה בנחת.',
+        mock:'<div class="field">שם מלא</div><div class="field">מספר טלפון</div>' },
+      { title:"הקישו ומלאו שדה אחד בכל פעם", body:'הקישו על שדה — תופיע מקלדת. הקלידו את התשובה, ואז הקישו על השדה הבא. ככה אחד-אחד.',
+        mock:'<div class="field">שם מלא: <b>ישראל ישראלי</b></div><div class="field">טלפון…</div>' },
+      { title:"מה לא חובה למלא", body:'שדות עם <span class="em">כוכבית *</span> הם חובה. השאר — לא חובה. אל תמסרו פרטים רגישים (כמו סיסמאות) אם לא בטוחים למה.',
+        tip:'אם טופס מבקש פרטים שנראים לכם מיותרים או חשודים — אפשר לעצור ולהתייעץ.' },
+      { title:"בדקו ושלחו", body:'לפני השליחה, <span class="em">עברו שוב</span> על מה שמילאתם וודאו שאין טעות. ואז הקישו "שלח" או "הגש".',
+        mock:'<div class="key">➤ שלח טופס</div>' }
+    ]
+  }
+];
+
+/* =========================================================
+   TTS — Hebrew read-aloud, honest fallback
+   ========================================================= */
+var TTS = {
+  ok:("speechSynthesis" in window),
+  heVoice:null,
+  hasHe:false,
+  init:function(){
+    if(!this.ok) return;
+    var self=this;
+    var pick=function(){
+      var vs = window.speechSynthesis.getVoices()||[];
+      var he = vs.filter(function(v){ return /he|iw/i.test(v.lang); });
+      self.heVoice = he[0]||null; self.hasHe = !!self.heVoice;
+    };
+    pick();
+    window.speechSynthesis.onvoiceschanged = pick;
+  },
+  speak:function(text){
+    if(!this.ok || !settings.voice) return;
+    try{
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang="he-IL"; u.rate=.92; u.pitch=1;
+      if(this.heVoice) u.voice=this.heVoice;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  },
+  stop:function(){ if(this.ok){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
+};
+TTS.init();
+
+/* strip HTML tags so TTS reads clean text */
+function plain(html){ var d=el("div"); d.innerHTML=html; return (d.textContent||"").replace(/\s+/g," ").trim(); }
+
+/* =========================================================
+   Voice INPUT — match speech to a task, honest fallback
+   ========================================================= */
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function startVoiceInput(){
+  var hint = $("#vhint");
+  if(!SR){
+    hint.textContent = "הדפדפן הזה לא תומך בהקשבה לקול. אפשר פשוט להקיש על אחת התמונות למטה 👇";
+    return;
+  }
+  var rec = new SR();
+  rec.lang="he-IL"; rec.interimResults=false; rec.maxAlternatives=3;
+  hint.textContent = "מקשיב… דברו עכשיו 🎧";
+  TTS.speak("אני מקשיב, מה תרצו לעשות?");
+  rec.onresult = function(ev){
+    var said = "";
+    for(var i=0;i<ev.results.length;i++){ said += ev.results[i][0].transcript + " "; }
+    said = said.trim();
+    hint.textContent = '"' + said + '"';
+    var t = matchTask(said);
+    if(t){ hint.textContent = "מצוין! פותח: " + t.title; openTask(t.id); }
+    else { hint.textContent = "לא הצלחתי להבין. אפשר לבחור מהתמונות למטה 👇"; }
+  };
+  rec.onerror = function(ev){
+    if(ev && ev.error==="not-allowed"){ hint.textContent="הגישה למיקרופון חסומה. אפשר לבחור מהתמונות למטה 👇"; }
+    else { hint.textContent="לא שמעתי טוב. אפשר לנסות שוב, או לבחור מהתמונות 👇"; }
+  };
+  rec.onend = function(){ /* nothing */ };
+  try{ rec.start(); }catch(e){ hint.textContent="לא הצלחתי להפעיל את המיקרופון. אפשר לבחור מהתמונות 👇"; }
+}
+function matchTask(s){
+  s = (s||"").toLowerCase();
+  var map = [
+    {id:"whatsapp", k:["וואטסאפ","וטסאפ","ווצאפ","הודעה","להודיע","לכתוב"]},
+    {id:"video",    k:["וידאו","וידיאו","שיחת","להתקשר","לראות","פנים"]},
+    {id:"email",    k:["מייל","אימייל","דואר","מכתב"]},
+    {id:"bill",     k:["חשבון","לשלם","תשלום","חשמל","מים","חוב"]},
+    {id:"doctor",   k:["רופא","תור","מרפאה","קופה","בריאות"]},
+    {id:"form",     k:["טופס","למלא","טפסים","בקשה"]}
+  ];
+  for(var i=0;i<map.length;i++){
+    for(var j=0;j<map[i].k.length;j++){ if(s.indexOf(map[i].k[j])>-1) return getTask(map[i].id); }
+  }
+  return null;
+}
+function getTask(id){ for(var i=0;i<TASKS.length;i++){ if(TASKS[i].id===id) return TASKS[i]; } return null; }
+
+/* =========================================================
+   RENDER — home grid
+   ========================================================= */
+function renderHome(){
+  var g = $("#taskGrid"); g.innerHTML="";
+  TASKS.forEach(function(t){
+    var b = el("button","card");
+    b.setAttribute("aria-label", t.title + " — " + t.subtitle);
+    b.innerHTML =
+      '<span class="emoji" aria-hidden="true">'+t.emoji+'</span>'+
+      '<span class="txt"><b>'+t.title+'</b><span>'+t.subtitle+'</span></span>'+
+      '<span class="go" aria-hidden="true">‹</span>';
+    b.addEventListener("click", function(){ openTask(t.id); });
+    g.appendChild(b);
+  });
+}
+
+/* =========================================================
+   RENDER — walkthrough
+   ========================================================= */
+var cur = { task:null, i:0 };
+
+function openTask(id){
+  var t = getTask(id); if(!t) return;
+  cur.task=t; cur.i=0;
+  $("#wtEmoji").textContent=t.emoji;
+  $("#wtTitle").textContent=t.title;
+  showView("taskView");
+  renderStep();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderStep(){
+  var t=cur.task, n=t.steps.length, s=t.steps[cur.i];
+  var host=$("#stepHost"); host.innerHTML="";
+
+  /* progress */
+  $("#progFill").style.width = Math.round(((cur.i)/(n)) * 100) + "%";
+  $("#progLbl").textContent = "צעד " + (cur.i+1) + " מתוך " + n;
+
+  var box = el("div","step");
+  box.appendChild(el("div","num", String(cur.i+1)));
+  box.appendChild(el("h2", null, s.title));
+  var body = el("div","body"); body.innerHTML=s.body; box.appendChild(body);
+
+  if(s.mock){ var m=el("div","mock"); m.innerHTML=s.mock; box.appendChild(m); }
+
+  if(s.tip){
+    var tip=el("div","tip");
+    tip.innerHTML='<span class="ic" aria-hidden="true">🛡️</span><div>'+s.tip+'</div>';
+    box.appendChild(tip);
+  }
+
+  /* actions */
+  var acts = el("div","actions");
+
+  var listen = el("button","btn listen");
+  listen.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
+  listen.addEventListener("click", function(){ TTS.speak(s.title + ". " + plain(s.body) + (s.tip? ". " + plain(s.tip):"")); });
+  acts.appendChild(listen);
+
+  if(cur.i>0){
+    var back=el("button","btn ghost");
+    back.innerHTML='<span aria-hidden="true">→</span> הקודם';
+    back.addEventListener("click", function(){ cur.i--; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); });
+    acts.appendChild(back);
+  }
+
+  var next=el("button","btn primary");
+  next.innerHTML = (cur.i < n-1) ? 'הבא <span aria-hidden="true">‹</span>' : 'סיימתי! <span aria-hidden="true">✓</span>';
+  next.addEventListener("click", function(){
+    if(cur.i < n-1){ cur.i++; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); }
+    else { finishTask(); }
+  });
+  acts.appendChild(next);
+
+  box.appendChild(acts);
+
+  /* family helper row */
+  var hr = el("div","helprow");
+  var ask = el("button","linkbtn");
+  ask.innerHTML = '👪 לא בטוחים? בקשו עזרה מבן משפחה';
+  ask.addEventListener("click", askHelper);
+  hr.appendChild(ask);
+  box.appendChild(hr);
+
+  host.appendChild(box);
+
+  /* auto read-aloud the step if voice is on */
+  if(settings.voice){ TTS.speak(s.title + ". " + plain(s.body)); }
+}
+
+function finishTask(){
+  TTS.stop();
+  $("#progFill").style.width="100%";
+  $("#progLbl").textContent="הושלם!";
+  settings.done = (settings.done||0)+1; persist();
+  var host=$("#stepHost"); host.innerHTML="";
+  var d=el("div","step done");
+  d.innerHTML =
+    '<div class="big" aria-hidden="true">🎉</div>'+
+    '<h2>כל הכבוד! סיימתם.</h2>'+
+    '<p>עברתם את כל הצעדים יפה מאוד. אפשר לחזור על זה בכל פעם שתרצו — אני תמיד כאן.</p>';
+  var acts=el("div","actions");
+  var again=el("button","btn ghost"); again.textContent="לעבור שוב";
+  again.addEventListener("click", function(){ cur.i=0; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); });
+  var home=el("button","btn primary"); home.innerHTML='למסך הבית <span aria-hidden="true">‹</span>';
+  home.addEventListener("click", goHome);
+  acts.appendChild(again); acts.appendChild(home);
+  d.appendChild(acts); host.appendChild(d);
+  if(settings.voice) TTS.speak("כל הכבוד, סיימתם!");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function goHome(){ TTS.stop(); showView("homeView"); window.scrollTo({top:0,behavior:"smooth"}); $("#vhint").textContent=""; }
+
+function showView(id){
+  $$(".view").forEach(function(v){ v.classList.toggle("active", v.id===id); });
+}
+
+/* =========================================================
+   Family helper (simulated)
+   ========================================================= */
+function helperChipHTML(){
+  if(settings.helper && settings.helper.name){
+    return '<div class="helper-chip">👪 בן המשפחה שלכם: <b>'+escapeHtml(settings.helper.name)+'</b></div>';
+  }
+  return '<p>עדיין לא הוספתם בן משפחה.</p>';
+}
+function openHelperModal(){
+  var h = settings.helper||{};
+  modal(
+    "בן משפחה לעזרה",
+    '<p>אפשר לבחור בן משפחה אחד שתמיד אפשר לפנות אליו לעזרה. הפרטים נשמרים <b>רק במכשיר הזה</b>.</p>'+
+    helperChipHTML()+
+    '<label for="hName">שם</label><input id="hName" type="text" placeholder="למשל: רותי, הבת" value="'+escapeHtml(h.name||"")+'">'+
+    '<label for="hPhone">טלפון (לא חובה)</label><input id="hPhone" type="tel" inputmode="tel" placeholder="050-0000000" value="'+escapeHtml(h.phone||"")+'">',
+    [
+      { label:"שמירה", cls:"primary", act:function(){
+          var name=$("#hName").value.trim(), phone=$("#hPhone").value.trim();
+          if(!name){ toast("צריך למלא שם"); return; }
+          settings.helper={name:name, phone:phone}; persist();
+          closeModal(); toast("נשמר! "+name+" נוסף/ה כבן משפחה לעזרה");
+      }},
+      { label:"סגירה", cls:"ghost", act:closeModal }
+    ]
+  );
+}
+function askHelper(){
+  if(settings.helper && settings.helper.name){
+    var name = settings.helper.name;
+    modal(
+      "לבקש עזרה מ"+escapeHtml(name),
+      '<p>נשלח ל<b>'+escapeHtml(name)+'</b> בקשת עזרה קצרה, עם שם המשימה שאתם עושים עכשיו'+
+      ( cur.task ? ' ("'+escapeHtml(cur.task.title)+'")' : '' )+
+      '. כך הוא/היא יוכל/תוכל ללוות אתכם.</p>'+
+      '<p style="font-size:.95rem">(זהו אב-טיפוס — הבקשה כאן היא הדגמה ולא נשלחת באמת.)</p>',
+      [
+        { label:"שלח/י בקשה", cls:"primary", act:function(){ closeModal(); toast("נשלחה בקשת עזרה ל"+name+" 👪 (הדגמה)"); }},
+        { label:"ביטול", cls:"ghost", act:closeModal }
+      ]
+    );
+  } else {
+    openHelperModal();
+  }
+}
+
+/* generic modal */
+function modal(title, bodyHTML, buttons){
+  var c=$("#modalCard");
+  c.innerHTML='<h2 id="modalTitle">'+escapeHtml(title)+'</h2>'+bodyHTML+'<div class="row" id="mRow"></div>';
+  var row=$("#mRow", c);
+  (buttons||[]).forEach(function(b){
+    var btn=el("button","btn "+(b.cls||"ghost"), b.label);
+    btn.addEventListener("click", b.act);
+    row.appendChild(btn);
+  });
+  $("#modalBg").classList.add("open");
+  var first = c.querySelector("input,button"); if(first) first.focus();
+}
+function closeModal(){ $("#modalBg").classList.remove("open"); }
+$("#modalBg").addEventListener("click", function(e){ if(e.target.id==="modalBg") closeModal(); });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
+
+/* toast */
+var toastT;
+function toast(msg){
+  var t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 3200);
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+/* =========================================================
+   Settings UI wiring
+   ========================================================= */
+function applyFs(){ document.documentElement.style.setProperty("--fs", settings.fs); }
+function applyDark(){
+  if(settings.dark) document.documentElement.setAttribute("data-mode","dark");
+  else document.documentElement.removeAttribute("data-mode");
+  var b=$("#darkToggle"); b.setAttribute("aria-pressed", settings.dark?"true":"false");
+  b.querySelector(".ic").textContent = settings.dark? "☀️":"🌙";
+}
+function applyVoice(){
+  var b=$("#voiceToggle"); b.setAttribute("aria-pressed", settings.voice?"true":"false");
+  b.querySelector(".ic").textContent = settings.voice? "🔊":"🔈";
+  if(!settings.voice) TTS.stop();
+}
+
+$$(".fsgroup button").forEach(function(b){
+  b.addEventListener("click", function(){
+    settings.fs = parseFloat(b.getAttribute("data-fs")); persist(); applyFs();
+    $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+  });
+});
+$("#darkToggle").addEventListener("click", function(){ settings.dark=!settings.dark; persist(); applyDark(); });
+$("#voiceToggle").addEventListener("click", function(){
+  settings.voice=!settings.voice; persist(); applyVoice();
+  toast(settings.voice? "הקראה מופעלת 🔊" : "הקראה כבויה 🔈");
+});
+$("#helperBtn").addEventListener("click", openHelperModal);
+$("#askVoiceBtn").addEventListener("click", startVoiceInput);
+$("#backHome").addEventListener("click", goHome);
+
+/* =========================================================
+   Boot
+   ========================================================= */
+function boot(){
+  // brand
+  $("#brandName").textContent=BRAND.name;
+  $("#brandTag").textContent=BRAND.tag;
+  $("#ftName").textContent=BRAND.name;
+  document.title = BRAND.name + " — " + BRAND.tag;
+  // restore settings
+  // sync fs buttons
+  $$(".fsgroup button").forEach(function(x){
+    x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs ? "true":"false");
+  });
+  applyFs(); applyDark(); applyVoice();
+  renderHome();
+  // honest TTS note if no Hebrew voice (after voices load)
+  setTimeout(function(){
+    if(TTS.ok && !TTS.hasHe){ /* leave silent default voice; instructions are always on screen */ }
+  }, 1200);
+}
+boot();
+
+})();
+</script>
+</body>
+</html>
