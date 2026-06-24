@@ -1,14 +1,14 @@
 {
-  "name": "עזרה — עוזר דיגיטלי בעברית פשוטה",
-  "short_name": "עזרה",
-  "description": "עוזר דיגיטלי שמדריך מבוגרים צעד-אחר-צעד, בעברית פשוטה וברורה.",
+  "name": "עֶזְרָא — העוזר שעושה בשבילכם",
+  "short_name": "עֶזְרָא",
+  "description": "עֶזְרָא — עוזר חכם בעברית פשוטה שלא רק מסביר, אלא עושה בשבילכם. מאת 3Shamrocks Studio.",
   "lang": "he",
   "dir": "rtl",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#FBF6EC",
-  "theme_color": "#0E5F52",
+  "background_color": "#F4F7FF",
+  "theme_color": "#005cff",
   "icons": [
-    { "src": "3shamrocks.png", "sizes": "905x133", "type": "image/png", "purpose": "any" }
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }

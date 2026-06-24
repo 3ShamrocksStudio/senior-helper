@@ -1,7 +1,8 @@
-# עזרה (Ezra) — Concept
+# עֶזְרָא (Ezra) — Concept
 
-> A plain-Hebrew digital helper for older people.
-> **Name "Ezra" / "עזרה" is PROVISIONAL** — pending a proper naming / trademark check.
+> A Hebrew-first **agentic** helper for older adults — it doesn't just explain, it **does it for you**.
+> **Name is Hebrew-first: עֶזְרָא leads; Latin "EZRA" is secondary.** Official brand: the EZRA
+> connection-mark + wordmark, electric blue `#005cff` + dark navy `#041933`.
 > Built by 3Shamrocks Studio. © 2026.
 
 ---
@@ -15,99 +16,105 @@ appointments and bills, and real exposure to scams that prey on uncertainty.
 
 Most "senior tech help" today is either a person on the phone (doesn't scale, not
 always available) or a generic tutorial (too abstract, not in the moment, not in plain
-Hebrew). The gap is a **patient, always-available, dignified guide** that speaks plainly
-and never makes you feel stupid.
+Hebrew). A *tutorial* still leaves all the work — and all the anxiety — on the person.
+The real gap is a **capable assistant that can actually do the thing for them**, in plain
+Hebrew, while quietly teaching them along the way.
 
-## 2. The product (vision)
+## 2. The product (vision) — an assistant that acts, not just instructs
 
-A warm assistant that helps a senior do a simple online task in one of two modes:
+**עֶזְרָא is an agent.** Its core promise: **the person does as little as possible and learns
+as much as possible.** Where a tutorial says *"here are 6 steps, now you do them,"* עֶזְרָא
+says *"leave it to me — I've done it for you,"* and then shows, in one warm line, what it
+did so the person grows more confident each time.
 
-- **🧭 GUIDE ME** — walks the person through the task step-by-step, in plain warm Hebrew,
-  with big visuals and read-aloud. The person stays in control and does each tap
-  themselves, learning as they go. *(This PoC.)*
-- **🤲 DO IT FOR ME** — *(future, careful phase)* the assistant performs the task on the
-  person's behalf with their consent and family oversight. **Not built here** — see §5.
+Two complementary modes, with the **agentic mode as the heart of the product**:
+
+- **🤲 עֶזְרָא עושָׂה את זה (Ezra does it for you)** — *(the core)* the assistant performs the
+  task on the person's behalf: it finds the right app/site, fetches the exact link or
+  access they need, completes the setup steps it safely can, fills the form, makes the
+  connection, and reports back **"עשיתי לך — מוכן"** ("done — it's ready") with one-tap
+  access to the result. The person taps **once** to approve; עֶזְרָא does the rest.
+- **🧭 עֶזְרָא מראָה לי (Ezra shows me / do-it-with-me)** — for anyone who'd rather learn by
+  doing, the same task as a calm, big-text, read-aloud walkthrough they tap through
+  themselves. Always one tap away from "just do it for me."
 
 The tone is the product as much as the function: reassuring, unhurried, never
-condescending. "Let's do this together" — not "here's a tutorial."
+condescending, and **never makes the person feel they failed for not knowing.**
 
-## 3. What this PoC actually is (scope)
+### The signature flow — "connect this to that"
 
-This proof-of-concept demonstrates **GUIDE-ME mode only**, and it **simulates** every
-step — it does NOT touch any real account, send any real message, or move any money.
-It is a faithful demo of the *guidance experience*, not a working automation tool.
+The clearest demonstration of agency: the person **photographs two items** (e.g. new
+wireless headphones and their phone) and asks *"how do I connect these?"* עֶזְרָא:
+1. **Recognises both items** and names them in plain Hebrew.
+2. **Explains simply** what's about to happen (so it's never a black box).
+3. **Does the work** — opens the right settings, pairs the devices, completes the
+   connection on the person's behalf.
+4. **Closes the loop** — *"חיברתי לך את האוזניות לטלפון ✓"* ("I connected your headphones
+   to your phone"), with a one-tap **"נסו עכשיו"** ("try it now"), a short **"מה עשיתי
+   בשבילך"** ("what I did for you") transparency list, and the option to loop in family.
 
-**Included:**
-- Big, high-contrast, senior-first UI — very large text, large touch targets (≥64px),
-  generous spacing, simple icons, Hebrew-first RTL, light (low-glare) background, plus a
-  dark mode. Three live text-size levels.
-- A warm home screen — **"?במה אפשר לעזור"** — with six big common-task cards:
-  WhatsApp message · video-call family · read/reply to email · check/pay a bill ·
-  book a doctor appointment · fill a form.
-- Per-task **step-by-step guided walkthroughs** in plain Hebrew, with simulated
-  on-screen mock visuals, a progress bar, and back/next at the person's own pace.
-- **Voice:** read-aloud (TTS, Hebrew voice when the browser/OS provides one) on every
-  step; optional **voice input** ("just tell me what you need") that matches spoken
-  Hebrew keywords to a task. **Honest fallbacks** when the browser blocks or lacks voice.
-- A simulated **"family helper"** concept — store one trusted relative on-device and
-  "ask them for help" from any step (demo only; nothing is actually sent).
-- **Gentle scam-safety education** woven into the flows (the bill and email walkthroughs
-  carry "stop and check" warnings) plus a standing safety tip on the home screen.
+## 3. What this concept demonstrates
 
-**Tech / standard:**
-- Single self-contained `index.html` (HTML+CSS+JS, no dependencies, no build step).
-- `localStorage` only for preferences (text size, dark mode, voice on/off, the family
-  helper, completed-task count). No accounts, no network calls, no tracking.
-- No `eval`, user text escaped before injection, sanitized rendering.
-- Responsive desktop + mobile; verified for no element overlaps; WCAG-AAA-leaning
-  contrast and visible focus styles.
-- Product name lives in **one swappable config** (`BRAND` near the top of the script) so
-  renaming the whole app is a one-line change.
+- **Hebrew-first, senior-first UI** — very large text, large touch targets (≥64px),
+  generous spacing, simple icons, RTL, high-contrast light theme (+ dark), three text
+  sizes. The **Hebrew name עֶזְרָא leads** everywhere; Latin EZRA is secondary chrome.
+- A warm home screen — greeting where **עֶזְרָא speaks first** — with big common-task cards
+  (WhatsApp · video-call family · email · check/pay a bill · doctor appointment · the
+  camera "what is this / connect this to that") and a speak-or-type bar.
+- **Agentic task completion**, not just walkthroughs: a clear **"עֶזְרָא is doing it for you →
+  done, here's the result"** experience, with progress the person can watch, a one-tap
+  result, and a plain-Hebrew summary of what was done.
+- The **camera "connect this to that"** flow that ends in עֶזְרָא *acting*: identify → explain
+  → **set it up for you** → one-tap access + direct link.
+- **Conversation** that resolves in action: ask in Hebrew (speak or type) → עֶזְרָא does it →
+  *"שלחתי בשבילך ✓"* ("I sent it for you"), not "here's step 1 of 4."
+- **Voice** read-aloud + voice input as additive, with honest fallbacks.
+- **Family oversight + gentle scam-safety** woven throughout (see §5).
 
 ## 4. Accessibility notes
 
 - Base text 20px scaling to ~27px+ via the on-screen A/א control; line-height 1.6.
-- Color contrast targets AAA (ink-on-paper ≈ 14:1; brand and accent buttons use white
-  text on dark fills). Both light and dark themes checked.
+- Color contrast targets AAA. Brand actions use white text on `#005cff`; ink is `#041933`
+  on light surfaces. Both light and dark themes checked.
 - Touch/click targets ≥ 64px. `:focus-visible` rings throughout. `prefers-reduced-motion`
-  honored. Semantic landmarks, ARIA labels, `aria-live` on step changes and hints.
-- Voice is **additive**, never required — every instruction is always on screen in text.
+  honored. Semantic landmarks, ARIA labels, `aria-live` on state changes.
+- Voice is **additive**, never required — every action and result is always on screen in text.
 
-## 5. The real "DO IT FOR ME" + scam-protection phase (what it needs)
+## 5. Doing this responsibly — the guardrails the agentic product requires
 
-This is deliberately **not** in the PoC. Doing it responsibly requires:
+Acting on a vulnerable person's behalf is the high-value *and* high-responsibility part.
+It is the product, so these are **requirements, not afterthoughts**:
 
 **Consent & control**
-- Explicit, per-task, revocable consent. Clear "the assistant is about to do X" preview
-  and a hard confirm before any irreversible action (send, pay, submit).
-- A real **family-oversight** layer: a trusted relative can be notified, can review, and
-  can be required to co-approve sensitive actions (payments, sharing personal data).
+- Explicit, per-task, revocable consent. A clear **"עֶזְרָא is about to do X"** preview and a
+  single, unmissable confirm before any irreversible action (send, pay, submit, share).
+- **Family-oversight layer**: a trusted relative can be notified, can review an audit log,
+  and can be *required* to co-approve sensitive actions (payments, sharing personal data).
 
 **Security & privacy**
-- Credentials must **never** be handled by the assistant in plain text. Use the device's
-  own credential/password manager and platform auth (passkeys, OS autofill); the senior
-  approves sign-in in the trusted system UI, the assistant never sees the secret.
+- Credentials are **never** handled by the assistant in plain text. Use the device's own
+  credential manager / platform auth (passkeys, OS autofill); the person approves sign-in
+  in the trusted system UI — עֶזְרָא never sees the secret.
 - Never enter card/bank numbers, passwords, codes, or government IDs on the user's behalf.
-- Minimal data, on-device first, encrypted; clear retention and deletion.
+- Minimal data, on-device first, encrypted; clear retention and deletion; a **Reset** that
+  erases everything.
 
-**Scam protection (the high-value part)**
+**Scam protection (built into agency)**
 - Active detection of pressure/urgency, requests for codes/passwords/remote-access, and
-  unfamiliar payees — surfaced as a calm "let's pause and check" with one-tap loop-in of
-  the family helper.
-- Verified directories for real institutions (banks, kupot, utilities) so the assistant
-  routes to the *real* site, never a link from an SMS/email.
-- A short, friendly safety curriculum the person absorbs by doing.
-
-**Safety engineering**
-- Treat every link/instruction from email/SMS/web as untrusted by default; humans confirm
-  side-effectful and outward-facing actions.
-- Audit log of assistant actions the family can review.
+  unfamiliar payees — surfaced as a calm "let's pause and check" with one-tap family loop-in.
+- Verified directories for real institutions (banks, kupot, utilities) so עֶזְרָא routes to
+  the *real* site, never a link from an SMS/email. Every external link/instruction is
+  treated as untrusted until verified.
 
 **Trust & quality**
-- Hebrew TTS/voice quality matters a lot here — invest in a natural Hebrew voice.
-- Co-design and usability testing **with actual older users**, iterating on pace, wording,
-  and reassurance.
+- A natural Hebrew voice; co-design and usability testing **with actual older users**.
+- An **audit log** of every action עֶזְרָא took, in plain Hebrew, that the person and family
+  can review — so "done for you" is always transparent, never a black box.
+
+> The PoC simulates the acting (no real accounts, money, or messages move) to demonstrate
+> the *experience* of an assistant that does the work for you. Real agency ships only behind
+> the §5 guardrails.
 
 ---
 
-*עזרה / Ezra is an early concept by 3Shamrocks Studio. The name is provisional.*
+*עֶזְרָא / Ezra — a Hebrew-first agentic concept by 3Shamrocks Studio. © 2026.*

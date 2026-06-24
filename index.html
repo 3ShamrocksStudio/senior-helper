@@ -3,375 +3,405 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0E5F52">
-<title>עזרה — עוזר דיגיטלי בעברית פשוטה</title>
-<meta name="description" content="עזרה — עוזר דיגיטלי שמדריך אתכם צעד-אחר-צעד, בעברית פשוטה וברורה.">
+<meta name="theme-color" content="#005cff">
+<title>עֶזְרָא — העוזר שעושה בשבילכם</title>
+<meta name="description" content="עֶזְרָא — עוזר חכם בעברית פשוטה שלא רק מסביר, אלא עושה בשבילכם. מאת 3Shamrocks Studio.">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='110 -12 500 463'%3E%3Cg fill='%23005cff'%3E%3Ccircle cx='537.74' cy='60.02' r='60.02'/%3E%3Ccircle cx='537.74' cy='219.46' r='60.02'/%3E%3Ccircle cx='219.45' cy='219.47' r='60.02'/%3E%3Ccircle cx='537.74' cy='378.9' r='60.02'/%3E%3Cpath d='M318.87 125.23v94.22c0 54.92-44.52 99.44-99.44 99.44h-39.38c-33.15 0-60.02 26.87-60.02 60.02s26.87 60.02 60.02 60.02h43.4c118.99 0 215.45-96.46 215.45-215.45v-98.24c0-33.15-26.87-60.02-60.02-60.02s-60.02 26.87-60.02 60.02Z'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 /* ============================================================
-   עזרה (Ezra) — plain-Hebrew digital helper for seniors
-   Single-file PoC · GUIDE-ME mode only (no real automation)
-   Built by 3Shamrocks Studio
+   עֶזְרָא (Ezra) — Hebrew-first AGENTIC helper for older adults
+   Single-file PWA · It doesn't just explain — it does it for you.
+   Official brand: electric blue #005cff + ink/navy #041933 on white.
+   © 2026 3Shamrocks Studio.
    ============================================================ */
 
-/* ---- Design tokens: warm, calm, very high contrast (AAA-ish) ---- */
+/* ---- Design tokens: clean, confident, modern-tech, AAA-leaning ---- */
 :root{
-  --paper:#FBF6EC;          /* warm off-white, no harsh glare */
-  --paper-2:#FFFFFF;
-  --ink:#15242B;            /* near-black ink on paper ≈ 14:1 contrast */
-  --ink-soft:#3A4A52;
-  --line:#D8CDB8;
-  --brand:#0E5F52;          /* deep, trustworthy teal-green */
-  --brand-ink:#073A32;
-  --brand-soft:#E4F0EC;
-  --accent:#B4531A;         /* warm terracotta for "listen / voice" */
-  --accent-soft:#FBEBDF;
-  --warn:#8A4B00;           /* safety amber, dark enough for AAA text */
-  --warn-soft:#FCEFD6;
-  --warn-line:#E7B765;
-  --ok:#1E6B3A;
-  --focus:#0B3B82;
-  --shadow:0 6px 22px rgba(21,36,43,.10);
+  --bg:#F4F7FF;            /* soft tech-blue-tinted white, no glare */
+  --surface:#FFFFFF;
+  --ink:#041933;           /* official navy — ~15:1 on white */
+  --ink-soft:#3D5066;
+  --line:#D8E2F2;
+  --brand:#005cff;         /* official electric blue */
+  --brand-deep:#0048cc;
+  --brand-ink:#003BA6;
+  --brand-soft:#E6EEFF;
+  --on-brand:#FFFFFF;
+  --ok:#0E7C3A;
+  --ok-soft:#E2F5E9;
+  --warn:#9A5B00;          /* dark amber, AAA text */
+  --warn-soft:#FFF3DE;
+  --warn-line:#F0C36A;
+  --focus:#003BA6;
+  --shadow:0 8px 28px rgba(4,25,51,.10);
+  --shadow-lg:0 16px 48px rgba(4,25,51,.16);
   --radius:22px;
-  --tap:64px;               /* minimum touch target */
-  --fs: 1;                  /* user font-scale multiplier (JS) */
+  --tap:64px;
+  --fs:1;                  /* user font-scale multiplier */
 }
-[data-mode="dark"]{
-  --paper:#10191D; --paper-2:#16242A; --ink:#F3EEE2; --ink-soft:#C4CDD1;
-  --line:#2C3A40; --brand:#5FD3BD; --brand-ink:#BFEFE5; --brand-soft:#16302B;
-  --accent:#F0925A; --accent-soft:#3A2415; --warn:#F0C669; --warn-soft:#2E2510;
-  --warn-line:#5A4A22; --ok:#7FD49A; --focus:#9CC2FF; --shadow:0 6px 22px rgba(0,0,0,.45);
+[data-theme="dark"]{
+  --bg:#06122A; --surface:#0E1F3D; --ink:#EAF1FF; --ink-soft:#A9BBD6;
+  --line:#23375E; --brand:#5C92FF; --brand-deep:#7FACFF; --brand-ink:#A9C6FF;
+  --brand-soft:#142A52; --on-brand:#06122A; --ok:#5FD08C; --ok-soft:#10301F;
+  --warn:#F2C265; --warn-soft:#2E2410; --warn-line:#5A4A22;
+  --focus:#A9C6FF; --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-lg:0 16px 48px rgba(0,0,0,.6);
 }
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+html,body{ overflow-x:clip; max-width:100%; }
 html{ -webkit-text-size-adjust:100%; }
 body{
-  background:var(--paper);
-  color:var(--ink);
+  background:var(--bg); color:var(--ink);
   font-family:"Heebo","Assistant",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  font-size:calc(20px * var(--fs));
-  line-height:1.6;
-  min-height:100vh;
+  font-size:calc(20px * var(--fs)); line-height:1.6; min-height:100vh;
   -webkit-font-smoothing:antialiased;
 }
 @media (max-width:480px){ body{ font-size:calc(19px * var(--fs)); } }
-
-button{ font-family:inherit; cursor:pointer; }
+button,input,textarea{ font-family:inherit; }
+button{ cursor:pointer; }
 :focus-visible{ outline:4px solid var(--focus); outline-offset:3px; border-radius:8px; }
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
 
-/* ---------- App shell ---------- */
-.wrap{ max-width:1040px; margin:0 auto; padding:0 16px 40px; }
+.wrap{ max-width:1060px; margin:0 auto; padding:0 16px 48px; }
 
 /* ---------- Top bar ---------- */
-header.bar{
-  position:sticky; top:0; z-index:30;
-  background:var(--paper);
-  border-bottom:2px solid var(--line);
-}
-.bar-in{
-  max-width:1040px; margin:0 auto; padding:10px 16px;
-  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-}
+header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:saturate(1.4) blur(8px); border-bottom:2px solid var(--line); }
+.bar-in{ max-width:1060px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 .brand{ display:flex; align-items:center; gap:12px; margin-inline-end:auto; }
-.brand .mark{
-  width:54px; height:54px; border-radius:16px; background:var(--brand);
-  color:#fff; display:grid; place-items:center; font-size:30px; flex:none;
-}
-.brand b{ font-size:calc(1.5rem); color:var(--brand-ink); line-height:1; }
-.brand .sub{ display:block; font-size:.8rem; font-weight:500; color:var(--ink-soft); margin-top:3px; }
-[data-mode="dark"] .brand b{ color:var(--brand); }
-
+.brand .mark{ width:50px; height:50px; flex:none; display:grid; place-items:center; }
+.brand .mark svg{ width:100%; height:100%; display:block; }
+.brand .names{ line-height:1; }
+.brand .he{ font-size:1.7rem; font-weight:800; color:var(--ink); letter-spacing:.5px; display:block; }
+.brand .en{ font-size:.72rem; font-weight:800; letter-spacing:3px; color:var(--brand); display:block; margin-top:3px; }
 .tools{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-.tbtn{
-  min-height:var(--tap); min-width:var(--tap); padding:0 16px;
-  border:2px solid var(--line); background:var(--paper-2); color:var(--ink);
-  border-radius:14px; font-size:1rem; font-weight:700;
-  display:inline-flex; align-items:center; gap:8px; justify-content:center;
-}
-.tbtn[aria-pressed="true"]{ background:var(--brand); color:#fff; border-color:var(--brand); }
+.tbtn{ min-height:52px; min-width:52px; padding:0 14px; border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; font-size:.98rem; font-weight:800; display:inline-flex; align-items:center; gap:8px; justify-content:center; }
+.tbtn[aria-pressed="true"]{ background:var(--brand); color:var(--on-brand); border-color:var(--brand); }
 .tbtn .ic{ font-size:1.3em; line-height:1; }
 .fsgroup{ display:inline-flex; border:2px solid var(--line); border-radius:14px; overflow:hidden; }
-.fsgroup button{
-  min-height:var(--tap); min-width:52px; border:0; background:var(--paper-2);
-  color:var(--ink); font-weight:800; border-inline-start:2px solid var(--line);
-}
+.fsgroup button{ min-height:52px; min-width:46px; border:0; background:var(--surface); color:var(--ink); font-weight:800; border-inline-start:2px solid var(--line); }
 .fsgroup button:first-child{ border-inline-start:0; }
-.fsgroup button[aria-pressed="true"]{ background:var(--brand); color:#fff; }
-.fsgroup .a1{font-size:.85rem} .fsgroup .a2{font-size:1.05rem} .fsgroup .a3{font-size:1.3rem}
-
-/* ---------- Hero / greeting ---------- */
-.hero{ text-align:center; padding:30px 8px 10px; }
-.hero h1{ font-size:calc(2.3rem); margin:.2em 0 .15em; line-height:1.15; }
-.hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .8em; max-width:30ch; }
-
-/* big "tell me" voice prompt */
-.askvoice{
-  display:inline-flex; align-items:center; gap:14px; margin:6px auto 4px;
-  background:var(--accent); color:#fff; border:0; border-radius:20px;
-  padding:16px 26px; font-size:1.2rem; font-weight:800; box-shadow:var(--shadow);
-  min-height:var(--tap);
+.fsgroup button[aria-pressed="true"]{ background:var(--brand); color:var(--on-brand); }
+.fsgroup .a1{font-size:.85rem}.fsgroup .a2{font-size:1.05rem}.fsgroup .a3{font-size:1.3rem}
+@media (max-width:520px){
+  .bar-in{ padding:8px 12px; gap:8px; }
+  .brand .he{ font-size:1.45rem; } .brand .mark{ width:42px; height:42px; }
+  .tools{ gap:6px; }
+  #voiceToggle span:not(.ic){ display:none; }   /* icon-only on narrow */
+  .tbtn{ min-width:48px; padding:0 10px; }
+  .fsgroup button{ min-width:40px; }
 }
-.askvoice .ic{ font-size:1.6em; }
-.askvoice:active{ transform:translateY(1px); }
-.vhint{ display:block; font-size:.95rem; color:var(--ink-soft); margin-top:8px; min-height:1.4em; }
 
-/* ---------- Task grid ---------- */
-.section-h{ font-size:1.25rem; font-weight:800; margin:26px 6px 12px; color:var(--ink); }
-.grid{ display:grid; grid-template-columns:1fr; gap:16px; }
-@media (min-width:560px){ .grid{ grid-template-columns:1fr 1fr; } }
-@media (min-width:900px){ .grid{ grid-template-columns:1fr 1fr 1fr; } }
-
-.card{
-  background:var(--paper-2); border:2px solid var(--line); border-radius:var(--radius);
-  padding:22px 20px; text-align:start; display:flex; align-items:center; gap:18px;
-  box-shadow:var(--shadow); width:100%; color:var(--ink); transition:transform .12s, border-color .12s;
-  min-height:104px;
-}
-.card:hover{ border-color:var(--brand); transform:translateY(-3px); }
-.card:active{ transform:translateY(0); }
-.card .emoji{
-  width:66px; height:66px; flex:none; border-radius:18px; display:grid; place-items:center;
-  font-size:34px; background:var(--brand-soft);
-}
-.card .txt b{ display:block; font-size:1.3rem; line-height:1.2; }
-.card .txt span{ display:block; font-size:1rem; color:var(--ink-soft); margin-top:4px; }
-.card .go{ margin-inline-start:auto; font-size:1.8rem; color:var(--brand); flex:none; }
-
-/* ---------- Safety strip ---------- */
-.safety{
-  margin:24px 0 4px; background:var(--warn-soft); border:2px solid var(--warn-line);
-  border-radius:var(--radius); padding:18px 20px; display:flex; gap:16px; align-items:flex-start;
-}
-.safety .ic{ font-size:1.9rem; flex:none; }
-.safety h3{ margin:0 0 4px; font-size:1.15rem; color:var(--warn); }
-.safety p{ margin:0; font-size:1rem; color:var(--ink); }
-
-/* ---------- Walkthrough view ---------- */
+/* ---------- View switching ---------- */
 .view{ display:none; }
 .view.active{ display:block; animation:fade .25s ease; }
-@keyframes fade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+@keyframes fade{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
 
-.wt-top{ display:flex; align-items:center; gap:14px; padding:22px 4px 6px; flex-wrap:wrap; }
-.backbtn{
-  min-height:var(--tap); padding:0 20px; border:2px solid var(--line); background:var(--paper-2);
-  color:var(--ink); border-radius:14px; font-size:1.05rem; font-weight:800;
-  display:inline-flex; align-items:center; gap:8px;
-}
-.wt-title{ display:flex; align-items:center; gap:14px; }
-.wt-title .emoji{ width:58px;height:58px;border-radius:16px;background:var(--brand-soft);display:grid;place-items:center;font-size:30px;flex:none;}
-.wt-title b{ font-size:1.5rem; }
+/* ---------- Hero ---------- */
+.hero{ text-align:center; padding:30px 8px 6px; }
+.hero .avatar{ width:96px; height:96px; margin:0 auto 14px; border-radius:30px; background:linear-gradient(150deg,var(--brand),var(--brand-deep)); display:grid; place-items:center; box-shadow:var(--shadow-lg); }
+.hero .avatar svg{ width:60px; height:60px; }
+.hero h1{ font-size:clamp(1.7rem,5vw,2.4rem); margin:.1em 0 .15em; line-height:1.15; color:var(--ink); }
+.hero h1 .accent{ color:var(--brand); }
+.hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .6em; max-width:34ch; }
 
-/* progress */
-.progress{ margin:18px 4px 0; }
+/* speak / type bar */
+.askbar{ display:flex; gap:10px; max-width:620px; margin:14px auto 6px; align-items:stretch; }
+.askbar input{ flex:1 1 auto; min-width:0; min-height:var(--tap); border:2px solid var(--line); border-radius:18px; padding:0 18px; font-size:1.1rem; background:var(--surface); color:var(--ink); }
+.askbar input::placeholder{ color:var(--ink-soft); opacity:.8; }
+.iconbtn{ min-height:var(--tap); min-width:var(--tap); border-radius:18px; border:0; display:grid; place-items:center; font-size:1.5rem; flex:none; }
+.iconbtn.mic{ background:var(--brand); color:var(--on-brand); }
+.iconbtn.send{ background:var(--brand-soft); color:var(--brand-ink); border:2px solid var(--brand); }
+.iconbtn:active{ transform:translateY(1px); }
+.vhint{ display:block; font-size:.98rem; color:var(--ink-soft); margin-top:10px; min-height:1.4em; }
+
+/* ---------- Section heads ---------- */
+.section-h{ font-size:1.25rem; font-weight:800; margin:30px 6px 14px; color:var(--ink); display:flex; align-items:center; gap:10px; }
+.section-h .pill{ font-size:.72rem; font-weight:800; letter-spacing:.4px; background:var(--brand-soft); color:var(--brand-ink); padding:4px 10px; border-radius:99px; }
+
+/* ---------- Task grid ---------- */
+.grid{ display:grid; grid-template-columns:1fr; gap:14px; }
+@media (min-width:560px){ .grid{ grid-template-columns:1fr 1fr; } }
+@media (min-width:900px){ .grid{ grid-template-columns:1fr 1fr 1fr; } }
+.card{ background:var(--surface); border:2px solid var(--line); border-radius:var(--radius); padding:20px; text-align:start; display:flex; align-items:center; gap:16px; box-shadow:var(--shadow); width:100%; color:var(--ink); transition:transform .12s, border-color .12s, box-shadow .12s; min-height:96px; }
+.card:hover{ border-color:var(--brand); transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.card:active{ transform:translateY(0); }
+.card .emoji{ width:62px; height:62px; flex:none; border-radius:18px; display:grid; place-items:center; font-size:32px; background:var(--brand-soft); }
+.card.cam .emoji{ background:linear-gradient(150deg,var(--brand),var(--brand-deep)); color:#fff; }
+.card .txt b{ display:block; font-size:1.22rem; line-height:1.2; }
+.card .txt span{ display:block; font-size:.98rem; color:var(--ink-soft); margin-top:4px; }
+.card .go{ margin-inline-start:auto; font-size:1.7rem; color:var(--brand); flex:none; }
+
+/* feature camera card spans full width */
+.card.cam{ grid-column:1/-1; background:linear-gradient(150deg, var(--brand-soft), var(--surface)); border-color:var(--brand); }
+
+/* ---------- Promise strip ---------- */
+.promise{ margin:26px 0 2px; background:var(--surface); border:2px solid var(--line); border-radius:var(--radius); padding:20px 22px; display:flex; gap:16px; align-items:center; box-shadow:var(--shadow); }
+.promise .ic{ font-size:2rem; flex:none; }
+.promise b{ color:var(--brand-ink); }
+.promise p{ margin:0; font-size:1.02rem; }
+
+/* ---------- Detail / task view ---------- */
+.detail-top{ display:flex; align-items:center; gap:14px; padding:22px 4px 6px; flex-wrap:wrap; }
+.backbtn{ min-height:56px; padding:0 20px; border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:14px; font-size:1.05rem; font-weight:800; display:inline-flex; align-items:center; gap:8px; }
+.detail-title{ display:flex; align-items:center; gap:14px; }
+.detail-title .emoji{ width:56px;height:56px;border-radius:16px;background:var(--brand-soft);display:grid;place-items:center;font-size:30px;flex:none; }
+.detail-title b{ font-size:1.45rem; }
+
+/* mode toggle: do-it-for-me vs show-me */
+.modeswitch{ display:flex; gap:10px; margin:18px 4px 6px; flex-wrap:wrap; }
+.modeswitch button{ flex:1 1 auto; min-height:var(--tap); border-radius:16px; border:2px solid var(--line); background:var(--surface); color:var(--ink); font-weight:800; font-size:1.02rem; display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:0 14px; }
+.modeswitch button[aria-pressed="true"]{ background:var(--brand); color:var(--on-brand); border-color:var(--brand); }
+.modeswitch button .ic{ font-size:1.3em; }
+
+.panel{ background:var(--surface); border:2px solid var(--line); border-radius:var(--radius); padding:24px; margin-top:16px; box-shadow:var(--shadow); }
+.panel h2{ font-size:1.45rem; margin:0 0 8px; line-height:1.25; }
+.panel .body{ font-size:1.12rem; color:var(--ink); }
+.panel .body .em{ background:var(--brand-soft); border-radius:8px; padding:1px 8px; font-weight:800; color:var(--brand-ink); }
+
+/* agent working animation */
+.agentwork{ }
+.agentwork .line{ display:flex; align-items:flex-start; gap:14px; padding:12px 0; font-size:1.08rem; opacity:.4; transition:opacity .3s; }
+.agentwork .line.active{ opacity:1; }
+.agentwork .line.done{ opacity:1; }
+.agentwork .line .dot{ width:30px; height:30px; flex:none; border-radius:50%; border:3px solid var(--line); display:grid; place-items:center; font-weight:900; color:var(--brand); margin-top:2px; }
+.agentwork .line.active .dot{ border-color:var(--brand); animation:spin 1s linear infinite; border-top-color:transparent; }
+.agentwork .line.done .dot{ background:var(--ok); border-color:var(--ok); color:#fff; animation:none; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* done / result card */
+.result .crown{ width:88px; height:88px; margin:0 auto 8px; border-radius:50%; background:var(--ok-soft); display:grid; place-items:center; font-size:46px; }
+.result{ text-align:center; }
+.result h2{ font-size:1.6rem; margin:.1em 0 .1em; }
+.result .sum{ font-size:1.15rem; color:var(--ink-soft); max-width:36ch; margin:0 auto 4px; }
+.didbox{ text-align:start; background:var(--brand-soft); border-radius:18px; padding:16px 18px; margin:18px 0 4px; }
+.didbox h3{ margin:0 0 8px; font-size:1.05rem; color:var(--brand-ink); display:flex; align-items:center; gap:8px; }
+.didbox ul{ margin:0; padding-inline-start:8px; list-style:none; }
+.didbox li{ display:flex; gap:10px; align-items:flex-start; padding:5px 0; font-size:1.02rem; }
+.didbox li::before{ content:"✓"; color:var(--ok); font-weight:900; flex:none; }
+
+/* walkthrough steps (show-me) */
+.progress{ margin:6px 4px 0; }
 .progress .bar{ height:14px; background:var(--line); border-radius:99px; overflow:hidden; }
 .progress .fill{ height:100%; background:var(--brand); width:0; border-radius:99px; transition:width .3s; }
-.progress .lbl{ font-size:1rem; color:var(--ink-soft); margin-top:8px; font-weight:700; }
+.progress .lbl{ font-size:1rem; color:var(--ink-soft); margin-top:8px; font-weight:800; }
+.stepnum{ width:50px;height:50px;border-radius:50%;background:var(--brand);color:var(--on-brand); display:grid;place-items:center;font-size:1.4rem;font-weight:800;margin-bottom:12px; }
 
-/* step panel */
-.step{
-  background:var(--paper-2); border:2px solid var(--line); border-radius:var(--radius);
-  padding:26px 24px; margin-top:16px; box-shadow:var(--shadow);
-}
-.step .num{
-  width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;
-  display:grid;place-items:center;font-size:1.5rem;font-weight:800;margin-bottom:14px;
-}
-.step h2{ font-size:1.6rem; margin:0 0 10px; line-height:1.25; }
-.step .body{ font-size:1.2rem; color:var(--ink); }
-.step .body .em{ background:var(--brand-soft); border-radius:8px; padding:1px 8px; font-weight:800; color:var(--brand-ink); }
-[data-mode="dark"] .step .body .em{ color:var(--brand); }
-
-/* simulated phone/screen mock */
-.mock{
-  margin:20px auto 4px; max-width:330px; background:var(--paper); border:3px solid var(--ink-soft);
-  border-radius:26px; padding:16px; box-shadow:var(--shadow);
-}
+/* simulated phone mock */
+.mock{ margin:18px auto 4px; max-width:320px; background:var(--bg); border:3px solid var(--ink-soft); border-radius:26px; padding:16px; box-shadow:var(--shadow); }
 .mock .scr-bar{ display:flex; align-items:center; gap:8px; font-size:.9rem; color:var(--ink-soft); margin-bottom:10px; padding:0 4px; }
-.mock .scr-bar .dot{ width:10px;height:10px;border-radius:50%;background:var(--line); }
-.mock .bubble{
-  background:var(--brand-soft); border-radius:16px; padding:12px 14px; margin:8px 0; font-size:1.05rem;
-}
+.mock .scr-bar .d{ width:9px;height:9px;border-radius:50%;background:var(--line); }
+.mock .bubble{ background:var(--brand-soft); border-radius:16px; padding:11px 13px; margin:8px 0; font-size:1.02rem; }
 .mock .bubble.me{ background:var(--brand); color:#fff; margin-inline-start:30px; }
-.mock .field{ background:var(--paper-2); border:2px solid var(--line); border-radius:14px; padding:14px; font-size:1.05rem; margin:10px 0; color:var(--ink-soft); }
-.mock .key{ background:var(--accent); color:#fff; border-radius:14px; padding:13px; text-align:center; font-weight:800; margin-top:8px; }
-.mock .bigicon{ font-size:62px; text-align:center; padding:8px 0; }
-.mock .label{ text-align:center; font-weight:800; font-size:1.1rem; margin-top:4px; }
+.mock .field{ background:var(--surface); border:2px solid var(--line); border-radius:14px; padding:13px; font-size:1rem; margin:9px 0; color:var(--ink-soft); }
+.mock .key{ background:var(--brand); color:#fff; border-radius:14px; padding:12px; text-align:center; font-weight:800; margin-top:8px; }
+.mock .bigicon{ font-size:58px; text-align:center; padding:6px 0; }
+.mock .label{ text-align:center; font-weight:800; font-size:1.05rem; }
 
-/* in-step tip (scam-safety etc.) */
-.tip{
-  margin-top:18px; background:var(--warn-soft); border:2px solid var(--warn-line);
-  border-radius:16px; padding:14px 16px; font-size:1.05rem; display:flex; gap:12px; align-items:flex-start;
-}
+/* tip / scam-safety */
+.tip{ margin-top:18px; background:var(--warn-soft); border:2px solid var(--warn-line); border-radius:16px; padding:14px 16px; font-size:1.02rem; display:flex; gap:12px; align-items:flex-start; color:var(--ink); }
 .tip .ic{ font-size:1.4rem; flex:none; }
 .tip b{ color:var(--warn); }
 
-/* step actions */
-.actions{ display:flex; gap:14px; margin-top:22px; flex-wrap:wrap; }
-.btn{
-  min-height:var(--tap); padding:0 28px; border-radius:16px; font-size:1.2rem; font-weight:800;
-  border:2px solid transparent; display:inline-flex; align-items:center; gap:10px; justify-content:center;
-}
-.btn.primary{ background:var(--brand); color:#fff; flex:1 1 auto; }
+/* actions */
+.actions{ display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
+.btn{ min-height:var(--tap); padding:0 26px; border-radius:16px; font-size:1.15rem; font-weight:800; border:2px solid transparent; display:inline-flex; align-items:center; gap:10px; justify-content:center; }
+.btn.primary{ background:var(--brand); color:var(--on-brand); flex:1 1 auto; }
 .btn.primary:active{ transform:translateY(1px); }
-.btn.ghost{ background:var(--paper-2); color:var(--ink); border-color:var(--line); }
-.btn.listen{ background:var(--accent); color:#fff; }
+.btn.ghost{ background:var(--surface); color:var(--ink); border-color:var(--line); }
+.btn.listen{ background:var(--brand-soft); color:var(--brand-ink); border:2px solid var(--brand); }
 .btn[disabled]{ opacity:.45; cursor:not-allowed; }
+.helprow{ margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.linkbtn{ background:none; border:0; color:var(--brand); font-weight:800; font-size:1.02rem; text-decoration:underline; min-height:56px; padding:0 4px; text-underline-offset:4px; }
 
-.helprow{ margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-.linkbtn{
-  background:none; border:0; color:var(--brand); font-weight:800; font-size:1.05rem;
-  text-decoration:underline; min-height:var(--tap); padding:0 4px; text-underline-offset:4px;
-}
-[data-mode="dark"] .linkbtn{ color:var(--brand); }
+/* ---------- Camera view ---------- */
+.camshell{ max-width:640px; margin:0 auto; }
+.camstage{ background:var(--surface); border:2px dashed var(--brand); border-radius:var(--radius); padding:22px; text-align:center; box-shadow:var(--shadow); }
+.camstage .hint{ font-size:1.08rem; color:var(--ink-soft); margin:6px auto 16px; max-width:30ch; }
+.shots{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:12px 0; }
+.shot{ position:relative; width:130px; height:130px; border-radius:18px; overflow:hidden; border:2px solid var(--line); background:var(--bg); }
+.shot img{ width:100%; height:100%; object-fit:cover; display:block; }
+.shot .rm{ position:absolute; top:4px; inset-inline-end:4px; width:30px; height:30px; border-radius:50%; border:0; background:rgba(4,25,51,.7); color:#fff; font-weight:900; font-size:1rem; }
+.shot.add{ display:grid; place-items:center; border-style:dashed; border-color:var(--brand); color:var(--brand); font-size:2rem; cursor:pointer; }
+.qrow{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px; }
+.qchip{ border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:99px; padding:10px 16px; font-weight:800; font-size:1rem; min-height:52px; }
+.qchip[aria-pressed="true"]{ background:var(--brand); color:var(--on-brand); border-color:var(--brand); }
 
-/* done panel */
-.done{ text-align:center; padding:30px 18px; }
-.done .big{ font-size:64px; }
-.done h2{ font-size:1.8rem; margin:.2em 0; }
-.done p{ font-size:1.15rem; color:var(--ink-soft); }
+/* ---------- Conversation view ---------- */
+.chat{ max-width:680px; margin:0 auto; }
+.chatlog{ display:flex; flex-direction:column; gap:12px; padding:8px 2px 4px; }
+.msg{ max-width:88%; padding:14px 16px; border-radius:20px; font-size:1.08rem; line-height:1.55; box-shadow:var(--shadow); white-space:pre-wrap; }
+.msg.ez{ background:var(--surface); border:2px solid var(--line); align-self:flex-start; border-bottom-inline-start-radius:6px; }
+.msg.me{ background:var(--brand); color:var(--on-brand); align-self:flex-end; border-bottom-inline-end-radius:6px; }
+.msg.ez .who{ display:block; font-size:.78rem; font-weight:800; color:var(--brand); margin-bottom:4px; }
+.msg .actbar{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+.msg .miniact{ border:2px solid var(--brand); background:var(--brand-soft); color:var(--brand-ink); border-radius:12px; padding:8px 14px; font-weight:800; font-size:.95rem; min-height:48px; }
+.typing{ align-self:flex-start; display:inline-flex; gap:6px; padding:16px 18px; background:var(--surface); border:2px solid var(--line); border-radius:20px; }
+.typing span{ width:10px; height:10px; border-radius:50%; background:var(--brand); animation:bob 1s infinite; }
+.typing span:nth-child(2){ animation-delay:.15s } .typing span:nth-child(3){ animation-delay:.3s }
+@keyframes bob{ 0%,80%,100%{ transform:translateY(0); opacity:.5 } 40%{ transform:translateY(-7px); opacity:1 } }
 
-/* ---------- Modal (family helper / voice / info) ---------- */
-.modal-bg{
-  position:fixed; inset:0; background:rgba(10,16,18,.55); z-index:50;
-  display:none; align-items:center; justify-content:center; padding:18px;
-}
+/* ---------- Modal ---------- */
+.modal-bg{ position:fixed; inset:0; background:rgba(4,25,51,.55); z-index:50; display:none; align-items:center; justify-content:center; padding:18px; }
 .modal-bg.open{ display:flex; }
-.modal{
-  background:var(--paper-2); border-radius:24px; max-width:480px; width:100%;
-  padding:26px 24px; box-shadow:var(--shadow); border:2px solid var(--line); max-height:92vh; overflow:auto;
-}
-.modal h2{ font-size:1.5rem; margin:0 0 6px; }
-.modal p{ font-size:1.05rem; color:var(--ink-soft); }
-.modal label{ display:block; font-weight:800; font-size:1.05rem; margin:16px 0 6px; }
-.modal input{
-  width:100%; min-height:var(--tap); border:2px solid var(--line); border-radius:14px;
-  padding:0 16px; font-size:1.15rem; background:var(--paper); color:var(--ink);
-}
+.modal{ background:var(--surface); border-radius:24px; max-width:500px; width:100%; padding:26px 24px; box-shadow:var(--shadow-lg); border:2px solid var(--line); max-height:92vh; overflow:auto; }
+.modal h2{ font-size:1.4rem; margin:0 0 8px; display:flex; align-items:center; gap:10px; }
+.modal p{ font-size:1.04rem; color:var(--ink-soft); }
+.modal label{ display:block; font-weight:800; font-size:1.02rem; margin:16px 0 6px; color:var(--ink); }
+.modal input{ width:100%; min-height:var(--tap); border:2px solid var(--line); border-radius:14px; padding:0 16px; font-size:1.1rem; background:var(--bg); color:var(--ink); }
 .modal .row{ display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
 .modal .row .btn{ flex:1 1 auto; }
-.helper-chip{
-  display:inline-flex; align-items:center; gap:10px; background:var(--brand-soft);
-  border-radius:99px; padding:8px 16px; font-weight:800; color:var(--brand-ink); margin-top:10px;
-}
-[data-mode="dark"] .helper-chip{ color:var(--brand); }
+.chip{ display:inline-flex; align-items:center; gap:10px; background:var(--brand-soft); border-radius:99px; padding:8px 16px; font-weight:800; color:var(--brand-ink); margin-top:10px; }
+.statusdot{ display:inline-block; width:11px; height:11px; border-radius:50%; }
+.statusdot.live{ background:var(--ok); } .statusdot.demo{ background:var(--warn); }
 
-/* ---------- Footer (logo on LIGHT backing per studio rule) ---------- */
-footer.credit{
-  margin-top:40px; padding:26px 16px; text-align:center;
-}
-footer.credit .badge{
-  display:inline-block; background:#FFFFFF; border:1px solid #E4DCC9; border-radius:14px;
-  padding:12px 20px; box-shadow:var(--shadow);
-}
-footer.credit .badge img{ display:block; height:30px; width:auto; }
-footer.credit .cr{ display:block; margin-top:12px; font-size:.95rem; color:var(--ink-soft); }
+/* audit log list */
+.auditlist{ list-style:none; margin:14px 0 0; padding:0; }
+.auditlist li{ border:2px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px; font-size:1rem; }
+.auditlist li .t{ display:block; font-size:.82rem; color:var(--ink-soft); margin-top:4px; }
+.auditlist .empty{ color:var(--ink-soft); border-style:dashed; text-align:center; }
+
+/* ---------- Footer ---------- */
+footer.credit{ margin-top:42px; padding:26px 16px; text-align:center; }
+footer.credit .badge{ display:inline-block; background:#FFFFFF; border:1px solid #E4E9F2; border-radius:14px; padding:12px 20px; box-shadow:var(--shadow); }
+footer.credit .badge img{ display:block; height:28px; width:auto; }
+footer.credit .cr{ display:block; margin-top:12px; font-size:.92rem; color:var(--ink-soft); }
 footer.credit .cr b{ color:var(--ink); }
+footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margin-top:10px; font-size:.85rem; font-weight:800; color:var(--ink-soft); border:2px solid var(--line); border-radius:99px; padding:6px 14px; background:var(--surface); }
 
 /* toast */
-.toast{
-  position:fixed; inset-block-end:24px; inset-inline:0; margin:auto; width:max-content; max-width:90%;
-  background:var(--ink); color:var(--paper); padding:16px 24px; border-radius:16px; font-size:1.1rem;
-  font-weight:700; z-index:60; box-shadow:var(--shadow); opacity:0; transform:translateY(20px);
-  transition:opacity .25s, transform .25s; pointer-events:none; text-align:center;
-}
+.toast{ position:fixed; inset-block-end:24px; inset-inline:0; margin:auto; width:max-content; max-width:90%; background:var(--ink); color:var(--bg); padding:15px 24px; border-radius:16px; font-size:1.05rem; font-weight:800; z-index:60; box-shadow:var(--shadow-lg); opacity:0; transform:translateY(20px); transition:opacity .25s, transform .25s; pointer-events:none; text-align:center; }
 .toast.show{ opacity:1; transform:none; }
 
-@media (prefers-reduced-motion: reduce){
-  *{ animation:none !important; transition:none !important; }
-}
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ===================== TOP BAR ===================== -->
+<!-- ======= TOP BAR ======= -->
 <header class="bar">
   <div class="bar-in">
     <div class="brand">
-      <div class="mark" aria-hidden="true">🤝</div>
-      <div>
-        <b id="brandName">עזרה</b>
-        <span class="sub" id="brandTag">עוזר דיגיטלי בעברית פשוטה</span>
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="110 -12 500 463" xmlns="http://www.w3.org/2000/svg"><g fill="#005cff">
+          <circle cx="537.74" cy="60.02" r="60.02"/><circle cx="537.74" cy="219.46" r="60.02"/>
+          <circle cx="219.45" cy="219.47" r="60.02"/><circle cx="537.74" cy="378.9" r="60.02"/>
+          <path d="M318.87,125.23v94.22c0,54.92-44.52,99.44-99.44,99.44h-39.38c-33.15,0-60.02,26.87-60.02,60.02h0c0,33.15,26.87,60.02,60.02,60.02h43.4c118.99,0,215.45-96.46,215.45-215.45v-98.24c0-33.15-26.87-60.02-60.02-60.02h0c-33.15,0-60.02,26.87-60.02,60.02Z"/>
+        </g></svg>
+      </div>
+      <div class="names">
+        <span class="he">עֶזְרָא</span>
+        <span class="en">EZRA</span>
       </div>
     </div>
     <div class="tools">
       <div class="fsgroup" role="group" aria-label="גודל הטקסט">
-        <button class="a1" data-fs="1"   aria-pressed="true"  aria-label="טקסט רגיל">א</button>
-        <button class="a2" data-fs="1.15" aria-pressed="false" aria-label="טקסט גדול">א</button>
-        <button class="a3" data-fs="1.35" aria-pressed="false" aria-label="טקסט גדול מאוד">א</button>
+        <button class="a1" data-fs="1"    aria-pressed="true"  aria-label="טקסט רגיל">א</button>
+        <button class="a2" data-fs="1.18" aria-pressed="false" aria-label="טקסט גדול">א</button>
+        <button class="a3" data-fs="1.4"  aria-pressed="false" aria-label="טקסט גדול מאוד">א</button>
       </div>
-      <button class="tbtn" id="voiceToggle" aria-pressed="true">
-        <span class="ic" aria-hidden="true">🔊</span><span>הקראה</span>
-      </button>
-      <button class="tbtn" id="darkToggle" aria-pressed="false" aria-label="מצב כהה">
-        <span class="ic" aria-hidden="true">🌙</span>
-      </button>
-      <button class="tbtn" id="helperBtn">
-        <span class="ic" aria-hidden="true">👪</span><span>בן משפחה</span>
-      </button>
+      <button class="tbtn" id="voiceToggle" aria-pressed="true"><span class="ic" aria-hidden="true">🔊</span><span>הקראה</span></button>
+      <button class="tbtn" id="themeToggle" aria-pressed="false" aria-label="מצב כהה"><span class="ic" aria-hidden="true">🌙</span></button>
+      <button class="tbtn" id="menuBtn" aria-label="הגדרות ותפריט"><span class="ic" aria-hidden="true">☰</span></button>
     </div>
   </div>
 </header>
 
 <main class="wrap">
 
-  <!-- ===================== HOME VIEW ===================== -->
+  <!-- ======= HOME ======= -->
   <section id="homeView" class="view active" aria-label="מסך הבית">
     <div class="hero">
-      <h1>שלום! <span dir="rtl">במה אפשר לעזור?</span></h1>
-      <p class="lead">בחרו מה תרצו לעשות — ואני אדריך אתכם, צעד אחר צעד, בלי למהר.</p>
-      <button class="askvoice" id="askVoiceBtn">
-        <span class="ic" aria-hidden="true">🎤</span>
-        <span>פשוט תגידו לי מה צריך</span>
-      </button>
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="110 -12 500 463" xmlns="http://www.w3.org/2000/svg"><g fill="#ffffff">
+          <circle cx="537.74" cy="60.02" r="60.02"/><circle cx="537.74" cy="219.46" r="60.02"/>
+          <circle cx="219.45" cy="219.47" r="60.02"/><circle cx="537.74" cy="378.9" r="60.02"/>
+          <path d="M318.87,125.23v94.22c0,54.92-44.52,99.44-99.44,99.44h-39.38c-33.15,0-60.02,26.87-60.02,60.02h0c0,33.15,26.87,60.02,60.02,60.02h43.4c118.99,0,215.45-96.46,215.45-215.45v-98.24c0-33.15-26.87-60.02-60.02-60.02h0c-33.15,0-60.02,26.87-60.02,60.02Z"/>
+        </g></svg>
+      </div>
+      <h1 id="greetTitle">שלום, אני <span class="accent">עֶזְרָא</span>.</h1>
+      <p class="lead" id="greetLead">אני לא רק מסביר — אני <b>עושה בשבילכם</b>. ספרו לי מה צריך, ואני אטפל בזה.</p>
+      <div class="askbar">
+        <input id="askInput" type="text" inputmode="text" placeholder="מה תרצו לעשות היום?" aria-label="כתבו מה תרצו לעשות" enterkeyhint="send">
+        <button class="iconbtn mic" id="askMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
+        <button class="iconbtn send" id="askSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
+      </div>
       <span class="vhint" id="vhint" aria-live="polite"></span>
     </div>
 
-    <h2 class="section-h">המשימות הנפוצות</h2>
+    <h2 class="section-h">עזרה מהירה <span class="pill">אני אעשה את זה</span></h2>
     <div class="grid" id="taskGrid"></div>
 
-    <div class="safety">
-      <span class="ic" aria-hidden="true">🛡️</span>
-      <div>
-        <h3>טיפ ביטחון קטן</h3>
-        <p>אם מישהו לוחץ עליכם לשלם, למסור סיסמה או קוד — <b>עצרו</b>. אף גוף אמיתי לא ידחק בכם.
-        תמיד אפשר לעצור, להתייעץ עם בן משפחה, ולחזור אחר כך.</p>
-      </div>
+    <div class="promise">
+      <span class="ic" aria-hidden="true">🤲</span>
+      <p><b>ההבטחה שלי:</b> אתם עושים כמה שפחות, ולומדים כמה שיותר. בכל פעם אראה לכם בדיוק מה עשיתי — בלי קופסה שחורה. לעולם לא אבקש סיסמה או קוד.</p>
     </div>
   </section>
 
-  <!-- ===================== WALKTHROUGH VIEW ===================== -->
-  <section id="taskView" class="view" aria-label="הדרכה צעד אחר צעד">
-    <div class="wt-top">
-      <button class="backbtn" id="backHome"><span aria-hidden="true">→</span> חזרה</button>
-      <div class="wt-title">
-        <div class="emoji" id="wtEmoji" aria-hidden="true">💬</div>
-        <b id="wtTitle">משימה</b>
+  <!-- ======= TASK DETAIL ======= -->
+  <section id="taskView" class="view" aria-label="ביצוע משימה">
+    <div class="detail-top">
+      <button class="backbtn" id="backHome1"><span aria-hidden="true">→</span> חזרה</button>
+      <div class="detail-title"><div class="emoji" id="tEmoji" aria-hidden="true">💬</div><b id="tTitle">משימה</b></div>
+    </div>
+    <div class="modeswitch" role="group" aria-label="איך לבצע">
+      <button id="modeDo"  aria-pressed="true"><span class="ic" aria-hidden="true">🤲</span> עֶזְרָא יעשה בשבילי</button>
+      <button id="modeShow" aria-pressed="false"><span class="ic" aria-hidden="true">🧭</span> תראו לי איך לעשות</button>
+    </div>
+    <div id="taskHost" aria-live="polite"></div>
+  </section>
+
+  <!-- ======= CAMERA ======= -->
+  <section id="camView" class="view" aria-label="מצלמה — מה זה / איך לחבר">
+    <div class="detail-top">
+      <button class="backbtn" id="backHome2"><span aria-hidden="true">→</span> חזרה</button>
+      <div class="detail-title"><div class="emoji" aria-hidden="true">📷</div><b>מה זה? איך מחברים?</b></div>
+    </div>
+    <div class="camshell">
+      <div class="camstage">
+        <p class="hint">צלמו פריט אחד — ואשאל אותו "מה זה?". צלמו <b>שניים</b> — ואסביר ואחבר ביניהם בשבילכם.</p>
+        <div class="shots" id="shots"></div>
+        <input id="camFile" type="file" accept="image/*" capture="environment" multiple hidden>
+        <div class="qrow" id="camQuick">
+          <button class="qchip" data-q="מה זה? תסביר לי בפשטות." aria-pressed="false">מה זה? 🤔</button>
+          <button class="qchip" data-q="איך מחברים את זה לזה?" aria-pressed="false">איך לחבר את זה לזה? 🔌</button>
+          <button class="qchip" data-q="איך מפעילים את זה?" aria-pressed="false">איך מפעילים? ▶️</button>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="camAsk"><span aria-hidden="true">🤲</span> שאלו את עֶזְרָא</button>
+        </div>
+      </div>
+      <div id="camResult"></div>
+    </div>
+  </section>
+
+  <!-- ======= CONVERSATION ======= -->
+  <section id="chatView" class="view" aria-label="שיחה עם עֶזְרָא">
+    <div class="detail-top">
+      <button class="backbtn" id="backHome3"><span aria-hidden="true">→</span> חזרה</button>
+      <div class="detail-title"><div class="emoji" aria-hidden="true">💬</div><b>שיחה עם עֶזְרָא</b></div>
+    </div>
+    <div class="chat">
+      <div class="chatlog" id="chatLog" aria-live="polite"></div>
+      <div class="askbar" style="margin-top:16px">
+        <input id="chatInput" type="text" placeholder="כתבו לי, ואני אטפל בזה…" aria-label="כתבו הודעה" enterkeyhint="send">
+        <button class="iconbtn mic" id="chatMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
+        <button class="iconbtn send" id="chatSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
       </div>
     </div>
-
-    <div class="progress">
-      <div class="bar"><div class="fill" id="progFill"></div></div>
-      <div class="lbl" id="progLbl">צעד 1 מתוך 4</div>
-    </div>
-
-    <div id="stepHost" aria-live="polite"></div>
   </section>
 
 </main>
 
-<!-- ===================== FOOTER (logo on LIGHT backing) ===================== -->
+<!-- ======= FOOTER ======= -->
 <footer class="credit">
   <span class="badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></span>
-  <span class="cr"><b id="ftName">עזרה</b> — אב-טיפוס · © 2026 <b>3Shamrocks Studio</b> · כל הזכויות שמורות</span>
+  <span class="cr"><b>עֶזְרָא</b> · אב-טיפוס · © 2026 <b>3Shamrocks Studio</b> · כל הזכויות שמורות</span>
+  <button class="modeflag" id="modeFlag" aria-label="מצב ה-AI"><span class="statusdot demo" id="modeDot"></span><span id="modeText">מצב הדגמה</span></button>
 </footer>
 
-<!-- ===================== MODAL ===================== -->
-<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal" id="modalCard"></div>
-</div>
-
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal" id="modalCard"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -379,383 +409,658 @@ footer.credit .cr b{ color:var(--ink); }
 (function(){
 
 /* =========================================================
-   BRAND — product name lives in ONE place (swappable).
-   Change BRAND.name to rename the whole app.
-   "Ezra" / "עזרה" is PROVISIONAL, pending a naming check.
+   BRAND — name lives in ONE place (Hebrew leads).
    ========================================================= */
-var BRAND = {
-  name: "עזרה",
-  nameEn: "Ezra",
-  tag:  "עוזר דיגיטלי בעברית פשוטה"
-};
+var BRAND = { he:"עֶזְרָא", en:"EZRA", tagline:"Bridging Technology for Senior Citizens" };
 
-/* ---- tiny helpers ---- */
-var $ = function(s, r){ return (r||document).querySelector(s); };
-var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
-function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+/* tiny helpers */
+var $ = function(s,r){ return (r||document).querySelector(s); };
+var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+function el(t,c,x){ var e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e; }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function delay(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 
-/* ---- persistent settings (localStorage) ---- */
+/* persistent settings */
 var store = {
-  load:function(){ try{ return JSON.parse(localStorage.getItem("ezra.v1")||"{}"); }catch(e){ return {}; } },
-  save:function(o){ try{ localStorage.setItem("ezra.v1", JSON.stringify(o)); }catch(e){} }
+  load:function(){ try{ return JSON.parse(localStorage.getItem("ezra.v2")||"{}"); }catch(e){ return {}; } },
+  save:function(o){ try{ localStorage.setItem("ezra.v2", JSON.stringify(o)); }catch(e){} }
 };
-var settings = Object.assign({ fs:1, dark:false, voice:true, helper:null, done:0 }, store.load());
+var settings = Object.assign({ fs:1, theme:"light", voice:true, helper:null, audit:[], key:"" }, store.load());
 function persist(){ store.save(settings); }
 
+/* audit log — plain-Hebrew record of everything Ezra "did" */
+function logAction(text){
+  settings.audit = settings.audit||[];
+  settings.audit.unshift({ text:text, at:Date.now() });
+  if(settings.audit.length>50) settings.audit.length=50;
+  persist();
+}
+function fmtTime(ts){
+  try{ return new Date(ts).toLocaleString("he-IL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; }
+}
+
 /* =========================================================
-   TASK CONTENT — simulated guided walkthroughs.
-   Each step: {n, title, body(HTML), mock(HTML), tip}
+   LIVE AI  (honest: real only with the user's own key)
+   Browser-direct Anthropic call. Without a key → labeled demo.
+   ========================================================= */
+var AI = {
+  model:"claude-opus-4-8",
+  hasKey:function(){ return !!(settings.key && settings.key.trim()); },
+  /* messages: [{role, content}], system: string. images: optional [{media_type,data}] folded into first user msg by caller */
+  call: async function(messages, system, maxTokens){
+    if(!this.hasKey()) throw new Error("nokey");
+    var res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "content-type":"application/json",
+        "x-api-key":settings.key.trim(),
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:this.model,
+        max_tokens:maxTokens||1024,
+        system:system,
+        messages:messages
+      })
+    });
+    if(!res.ok){
+      var t=""; try{ t=(await res.json()).error.message; }catch(e){}
+      throw new Error(humanizeAIError(res.status, t));
+    }
+    var data = await res.json();
+    var out=""; (data.content||[]).forEach(function(b){ if(b.type==="text") out+=b.text; });
+    return out.trim();
+  }
+};
+
+function humanizeAIError(status, msg){
+  msg = (msg||"").toLowerCase();
+  if(/credit balance|too low|billing/.test(msg)) return "אין כרגע יתרת קרדיט בחשבון ה-AI";
+  if(status===401 || /authentication|invalid x-api-key|api key/.test(msg)) return "המפתח אינו תקין";
+  if(status===429 || /rate/.test(msg)) return "יש כרגע עומס — נסו שוב בעוד רגע";
+  return "החיבור ל-AI נכשל זמנית";
+}
+
+var EZRA_SYSTEM =
+"את/ה עֶזְרָא — עוזר/ת דיגיטלי/ת חם/ה וסבלני/ת למבוגרים בישראל. " +
+"דבר/י תמיד בעברית פשוטה, ברורה ומכבדת, במשפטים קצרים. אל תהיה/י מתנשא/ת. " +
+"העיקרון שלך: המשתמש עושה כמה שפחות ולומד כמה שיותר. אתה לא רק מסביר — אתה גם 'עושה בשבילו' (בתוך אב-טיפוס זה מודגם בלבד; לא מתבצעות פעולות אמיתיות, לא נשלח כסף ולא נשלחות הודעות). " +
+"כשמתאים, סכם בקצרה 'מה עשיתי בשבילך' וסיים בשורה מעודדת. " +
+"לעולם אל תבקש/י סיסמה, קוד, מספר כרטיס אשראי או פרטי בנק. " +
+"אם מישהו לוחץ לשלם/למסור קוד בדחיפות — עצור/י בעדינות והצע/י להתייעץ עם בן משפחה. " +
+"שמור/י על תשובות קצרות (2-5 משפטים) אלא אם מבקשים יותר.";
+
+/* =========================================================
+   TASK CONTENT — agentic + show-me, in plain Hebrew
    ========================================================= */
 var TASKS = [
-  {
-    id:"whatsapp", emoji:"💬", title:"שליחת הודעה בוואטסאפ",
-    subtitle:"לכתוב ולשלוח הודעה לחבר או למשפחה",
-    steps:[
-      { title:"פתחו את וואטסאפ", body:'מצאו את האייקון הירוק עם השפופרת הלבנה במסך הטלפון, והקישו עליו פעם אחת.',
-        mock:'<div class="bigicon">🟢</div><div class="label">WhatsApp</div>' },
-      { title:"בחרו עם מי לדבר", body:'תיפתח רשימת אנשים. הקישו על <span class="em">השם</span> של מי שאתם רוצים לכתוב לו. אם יש הרבה שמות — אפשר לחפש למעלה.',
-        mock:'<div class="scr-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>אנשי הקשר</span></div><div class="field">🔎 חיפוש…</div><div class="bubble">👩 רותי — הבת</div><div class="bubble">👦 דני — הנכד</div>' },
-      { title:"כתבו את ההודעה", body:'הקישו על השורה למטה שכתוב בה <span class="em">"הקלדת הודעה"</span>. יופיע מקלדת — הקלידו מה שתרצו לומר. לא נורא אם יש שגיאה.',
-        mock:'<div class="bubble me">שלום רותי, הכול טוב כאן 🙂</div><div class="field">הקלדת הודעה…</div>' },
-      { title:"שלחו", body:'כשסיימתם — הקישו על כפתור <span class="em">השליחה</span> (חץ או מטוס נייר) בצד. וזהו, ההודעה נשלחה!',
-        mock:'<div class="bubble me">שלום רותי, הכול טוב כאן 🙂</div><div class="key">➤ שליחה</div>' }
-    ]
-  },
-  {
-    id:"video", emoji:"📹", title:"שיחת וידאו עם המשפחה",
-    subtitle:"לראות ולדבר עם המשפחה פנים אל פנים",
-    steps:[
-      { title:"בחרו אפליקציה", body:'אפשר להתקשר בוידאו דרך <span class="em">וואטסאפ</span> או דרך אפליקציה אחרת שהמשפחה משתמשת בה. הקישו עליה.',
-        mock:'<div class="bigicon">🟢</div><div class="label">וידאו דרך וואטסאפ</div>' },
-      { title:"בחרו את מי להתקשר", body:'הקישו על השם של בן המשפחה שאתם רוצים לראות.',
-        mock:'<div class="bubble">👩 רותי — הבת</div><div class="bubble">👦 דני — הנכד</div>' },
-      { title:"הקישו על מצלמת הוידאו", body:'בראש המסך יש אייקון של <span class="em">מצלמה</span> 🎥. הקישו עליו כדי להתחיל שיחת וידאו.',
-        mock:'<div class="scr-bar"><span>רותי</span></div><div class="bigicon">🎥</div><div class="label">התקשרו בוידאו</div>' },
-      { title:"חכו שיענו", body:'עכשיו מחכים שניה-שתיים. כשעונים — תראו את הפנים שלהם על המסך. החזיקו את הטלפון מול הפנים שלכם, ודברו רגיל.',
-        tip:'אם לא עונים — זה בסדר גמור. אפשר לנסות שוב מאוחר יותר, או לשלוח הודעה.',
-        mock:'<div class="bigicon">📞</div><div class="label">מתקשר…</div>' }
-    ]
-  },
-  {
-    id:"email", emoji:"✉️", title:"קריאה ומענה לאימייל",
-    subtitle:"לפתוח דואר אלקטרוני ולענות עליו",
-    steps:[
-      { title:"פתחו את הדואר", body:'הקישו על אפליקציית הדואר (לרוב אייקון של <span class="em">מעטפה</span> ✉️).',
-        mock:'<div class="bigicon">✉️</div><div class="label">הדואר שלי</div>' },
-      { title:"בחרו הודעה לקרוא", body:'תופיע רשימה. הודעות חדשות לרוב <span class="em">מודגשות</span>. הקישו על הודעה כדי לפתוח ולקרוא אותה.',
-        mock:'<div class="bubble"><b>מרפאה — תזכורת תור</b><br><small>היום, 09:14</small></div><div class="bubble">חברת החשמל<br><small>אתמול</small></div>' },
-      { title:"רגע של זהירות", body:'לפני שאתם לוחצים על קישור או כפתור בתוך מייל — בדקו מי השולח. אם זה לא מוכר, או מבקשים סיסמה/תשלום דחוף — אל תלחצו.',
-        tip:'<b>חוק הזהב:</b> בנק או גוף רשמי לעולם לא יבקשו סיסמה או קוד במייל. בספק — שאלו בן משפחה.' },
-      { title:"לענות", body:'אם תרצו להשיב, הקישו על <span class="em">"השב"</span> (חץ חוזר ↩️), כתבו את התשובה, והקישו <span class="em">"שלח"</span>.',
-        mock:'<div class="field">תודה על העדכון, נתראה בתור 🙂</div><div class="key">➤ שלח</div>' }
-    ]
-  },
-  {
-    id:"bill", emoji:"🧾", title:"בדיקה ותשלום של חשבון",
-    subtitle:"לראות כמה לשלם — ולשלם בבטחה",
-    steps:[
-      { title:"מצאו את החשבון", body:'פתחו את האתר או האפליקציה הרשמית (למשל חברת החשמל או המים). היכנסו <span class="em">רק</span> דרך אתר שאתם מכירים — לא דרך קישור שהגיע בהודעה.',
-        tip:'<b>חשוב:</b> אל תיכנסו לתשלום מקישור ב-SMS או במייל. תמיד פתחו את האתר בעצמכם.' },
-      { title:"בדקו את הסכום", body:'מצאו את <span class="em">הסכום לתשלום</span> ואת <span class="em">תאריך הפירעון</span>. ודאו שזה הגיוני ומוכר לכם. אם משהו נראה מוזר — עצרו.',
-        mock:'<div class="scr-bar"><span>חשבון חשמל</span></div><div class="bubble">לתשלום: <b>248 ₪</b></div><div class="bubble">עד תאריך: 30/6</div>' },
-      { title:"הזינו פרטי תשלום", body:'הקישו "תשלום", הזינו את פרטי כרטיס האשראי בשדות המתאימים. ודאו שכתובת האתר מתחילה ב-<span class="em">https</span> ויש סמל מנעול 🔒.',
-        mock:'<div class="field">💳 מספר כרטיס</div><div class="field">תוקף · CVV</div>' },
-      { title:"אשרו ושמרו אישור", body:'הקישו <span class="em">"אשר תשלום"</span>. כדאי לצלם מסך של האישור או לשמור אותו, ליתר ביטחון.',
-        tip:'מרגישים לא בטוחים? זה רגע מצוין לבקש מבן משפחה ללוות אתכם. אין בזה שום בעיה.',
-        mock:'<div class="key">🔒 אשר תשלום</div>' }
-    ]
-  },
-  {
-    id:"doctor", emoji:"🩺", title:"קביעת תור לרופא",
-    subtitle:"לתאם תור דרך הקופה",
-    steps:[
-      { title:"פתחו את אפליקציית הקופה", body:'פתחו את האפליקציה של קופת החולים שלכם (כללית, מכבי, מאוחדת או לאומית).',
-        mock:'<div class="bigicon">🏥</div><div class="label">קופת חולים</div>' },
-      { title:"בחרו ‘זימון תור’", body:'חפשו כפתור שכתוב עליו <span class="em">"זימון תור"</span> או "תורים", והקישו עליו.',
-        mock:'<div class="bubble">📅 זימון תור</div><div class="bubble">💊 מרשמים</div><div class="bubble">📄 תוצאות בדיקה</div>' },
-      { title:"בחרו רופא וסוג תור", body:'בחרו את <span class="em">הרופא</span> או סוג התור (למשל רופא משפחה). תופיע רשימת זמנים פנויים.',
-        mock:'<div class="bubble">ד"ר כהן — רפואת משפחה</div>' },
-      { title:"בחרו זמן ואשרו", body:'הקישו על <span class="em">יום ושעה</span> שנוחים לכם, ואז על "אישור". כדאי לרשום לעצמכם את התאריך גם על לוח או פתק.',
-        mock:'<div class="bubble me">יום שלישי · 10:30</div><div class="key">✓ אשר תור</div>' }
-    ]
-  },
-  {
-    id:"form", emoji:"📝", title:"מילוי טופס באינטרנט",
-    subtitle:"למלא פרטים בטופס דיגיטלי",
-    steps:[
-      { title:"קראו לאט מה מבקשים", body:'בטופס יש <span class="em">שדות</span> למילוי (שם, טלפון וכו׳). אין צורך למהר — קראו כל שורה בנחת.',
-        mock:'<div class="field">שם מלא</div><div class="field">מספר טלפון</div>' },
-      { title:"הקישו ומלאו שדה אחד בכל פעם", body:'הקישו על שדה — תופיע מקלדת. הקלידו את התשובה, ואז הקישו על השדה הבא. ככה אחד-אחד.',
-        mock:'<div class="field">שם מלא: <b>ישראל ישראלי</b></div><div class="field">טלפון…</div>' },
-      { title:"מה לא חובה למלא", body:'שדות עם <span class="em">כוכבית *</span> הם חובה. השאר — לא חובה. אל תמסרו פרטים רגישים (כמו סיסמאות) אם לא בטוחים למה.',
-        tip:'אם טופס מבקש פרטים שנראים לכם מיותרים או חשודים — אפשר לעצור ולהתייעץ.' },
-      { title:"בדקו ושלחו", body:'לפני השליחה, <span class="em">עברו שוב</span> על מה שמילאתם וודאו שאין טעות. ואז הקישו "שלח" או "הגש".',
-        mock:'<div class="key">➤ שלח טופס</div>' }
-    ]
-  }
+  { id:"whatsapp", emoji:"💬", title:"לשלוח הודעה בוואטסאפ", subtitle:"לכתוב למשפחה או לחבר", sensitive:true,
+    agent:[ "מאתר את וואטסאפ במכשיר שלכם",
+            "פותח את הצ׳אט עם האדם שתרצו",
+            "מנסח הודעה חמה וברורה",
+            "מציג לכם לאישור לפני שליחה" ],
+    result:{ icon:"📨", sum:"ההודעה מוכנה ומחכה רק ללחיצת אישור שלכם.",
+      did:["איתרתי את וואטסאפ ופתחתי את הצ׳אט הנכון","ניסחתי בשבילכם: „שלום, חשבתי עליכם — הכול טוב כאן 🙂”","הכנתי הכול — נשאר רק לאשר שליחה"],
+      tryLabel:"לאשר ולשלוח" },
+    show:[
+      { t:"פתחו את וואטסאפ", b:'הקישו על האייקון הירוק עם השפופרת הלבנה.', mock:'<div class="bigicon">🟢</div><div class="label">WhatsApp</div>' },
+      { t:"בחרו עם מי לדבר", b:'הקישו על <span class="em">השם</span> של מי שתרצו לכתוב לו.', mock:'<div class="field">🔎 חיפוש…</div><div class="bubble">👩 רותי — הבת</div><div class="bubble">👦 דני — הנכד</div>' },
+      { t:"כתבו את ההודעה", b:'הקישו על השורה <span class="em">„הקלדת הודעה”</span> וכתבו. לא נורא אם יש שגיאה.', mock:'<div class="bubble me">שלום רותי, הכול טוב כאן 🙂</div><div class="field">הקלדת הודעה…</div>' },
+      { t:"שלחו", b:'הקישו על כפתור <span class="em">השליחה</span> (החץ) בצד. וזהו!', mock:'<div class="bubble me">שלום רותי 🙂</div><div class="key">➤ שליחה</div>' }
+    ] },
+  { id:"video", emoji:"📹", title:"שיחת וידאו עם המשפחה", subtitle:"לראות ולדבר פנים אל פנים",
+    agent:[ "בודק באיזו אפליקציה המשפחה משתמשת",
+            "מכין שיחת וידאו עם בן המשפחה",
+            "מוודא שהמצלמה והקול פועלים",
+            "מחייג בשבילכם" ],
+    result:{ icon:"📞", sum:"השיחה מוכנה — לחיצה אחת ואתם רואים אותם.",
+      did:["בחרתי את האפליקציה הנכונה (וואטסאפ)","הכנתי שיחת וידאו עם רותי","בדקתי שהמצלמה והרמקול פועלים"],
+      tryLabel:"להתחיל את השיחה" },
+    show:[
+      { t:"בחרו אפליקציה", b:'אפשר בוידאו דרך <span class="em">וואטסאפ</span>. הקישו עליה.', mock:'<div class="bigicon">🟢</div><div class="label">וידאו דרך וואטסאפ</div>' },
+      { t:"בחרו את מי", b:'הקישו על השם של בן המשפחה שתרצו לראות.', mock:'<div class="bubble">👩 רותי — הבת</div>' },
+      { t:"הקישו על המצלמה", b:'בראש המסך יש אייקון <span class="em">מצלמה</span> 🎥. הקישו עליו.', mock:'<div class="bigicon">🎥</div><div class="label">התקשרו בוידאו</div>' },
+      { t:"חכו שיענו", b:'מחכים שניה. כשעונים — מחזיקים את הטלפון מול הפנים ומדברים רגיל.', tip:'אם לא עונים — זה בסדר. אפשר לנסות שוב מאוחר יותר.', mock:'<div class="bigicon">📞</div><div class="label">מתקשר…</div>' }
+    ] },
+  { id:"email", emoji:"✉️", title:"לקרוא ולענות לאימייל", subtitle:"לפתוח דואר ולהשיב",
+    agent:[ "פותח את תיבת הדואר שלכם",
+            "מוצא את ההודעה החדשה והחשובה",
+            "קורא ומסכם לכם במשפט",
+            "מכין תשובה מנומסת לאישורכם" ],
+    result:{ icon:"📧", sum:"קראתי את המייל בשבילכם והכנתי תשובה.",
+      did:["פתחתי את הדואר ומצאתי מייל מהמרפאה: תזכורת לתור","סיכמתי: יש לכם תור ביום שלישי בשעה 10:30","ניסחתי תשובה: „תודה על העדכון, אגיע 🙂”"],
+      tryLabel:"לאשר ולשלוח תשובה", scam:true },
+    show:[
+      { t:"פתחו את הדואר", b:'הקישו על אפליקציית הדואר (אייקון של <span class="em">מעטפה</span> ✉️).', mock:'<div class="bigicon">✉️</div><div class="label">הדואר שלי</div>' },
+      { t:"בחרו הודעה", b:'הודעות חדשות לרוב <span class="em">מודגשות</span>. הקישו כדי לפתוח.', mock:'<div class="bubble"><b>מרפאה — תזכורת תור</b><br><small>היום</small></div>' },
+      { t:"רגע של זהירות", b:'לפני לחיצה על קישור — בדקו מי השולח. אם מבקשים סיסמה/תשלום דחוף — אל תלחצו.', tip:'<b>חוק הזהב:</b> בנק אמיתי לעולם לא יבקש סיסמה במייל. בספק — שאלו בן משפחה.' },
+      { t:"לענות", b:'הקישו <span class="em">„השב”</span> ↩️, כתבו תשובה, והקישו <span class="em">שלח</span>.', mock:'<div class="field">תודה, נתראה בתור 🙂</div><div class="key">➤ שלח</div>' }
+    ] },
+  { id:"bill", emoji:"🧾", title:"לבדוק ולשלם חשבון", subtitle:"לראות כמה — ולשלם בבטחה", sensitive:true,
+    agent:[ "נכנס לאתר הרשמי של החברה (לא מקישור בהודעה)",
+            "מאתר את הסכום ואת תאריך הפירעון",
+            "בודק שאין משהו חשוד",
+            "מכין את התשלום — אתם מאשרים בעצמכם" ],
+    result:{ icon:"🔒", sum:"בדקתי את החשבון. הכול תקין — נשאר רק שתאשרו.",
+      did:["נכנסתי לאתר הרשמי של חברת החשמל בעצמי","מצאתי: לתשלום 248 ₪, עד 30/6","וידאתי שזה חשבון אמיתי ולא הונאה"],
+      tryLabel:"להמשיך לתשלום מאובטח", scam:true,
+      note:"את פרטי כרטיס האשראי תזינו אתם, באתר המאובטח — אני לעולם לא רואה אותם." },
+    show:[
+      { t:"מצאו את החשבון", b:'היכנסו <span class="em">רק</span> דרך אתר שאתם מכירים — לא מקישור בהודעה.', tip:'<b>חשוב:</b> אל תיכנסו לתשלום מקישור ב-SMS. תמיד פתחו את האתר בעצמכם.' },
+      { t:"בדקו את הסכום", b:'מצאו את <span class="em">הסכום</span> ואת <span class="em">תאריך הפירעון</span>. אם משהו מוזר — עצרו.', mock:'<div class="bubble">לתשלום: <b>248 ₪</b></div><div class="bubble">עד תאריך: 30/6</div>' },
+      { t:"הזינו פרטי תשלום", b:'ודאו שכתובת האתר מתחילה ב-<span class="em">https</span> ויש מנעול 🔒.', mock:'<div class="field">💳 מספר כרטיס</div><div class="field">תוקף · CVV</div>' },
+      { t:"אשרו ושמרו אישור", b:'הקישו <span class="em">„אשר תשלום”</span> וצלמו מסך של האישור.', tip:'לא בטוחים? רגע מצוין לבקש מבן משפחה ללוות אתכם.', mock:'<div class="key">🔒 אשר תשלום</div>' }
+    ] },
+  { id:"doctor", emoji:"🩺", title:"לקבוע תור לרופא", subtitle:"לתאם דרך הקופה", sensitive:true,
+    agent:[ "פותח את אפליקציית קופת החולים שלכם",
+            "מחפש תור פנוי אצל רופא המשפחה",
+            "בוחר זמן נוח בבוקר",
+            "מכין את הזימון לאישורכם" ],
+    result:{ icon:"📅", sum:"מצאתי תור מתאים — נשאר רק לאשר.",
+      did:["נכנסתי לאפליקציה של הקופה","מצאתי תור פנוי: יום שלישי, 10:30, ד′′ר כהן","הכנתי את הזימון — לחיצה אחת והוא נקבע"],
+      tryLabel:"לאשר את התור" },
+    show:[
+      { t:"פתחו את הקופה", b:'פתחו את האפליקציה של קופת החולים שלכם.', mock:'<div class="bigicon">🏥</div><div class="label">קופת חולים</div>' },
+      { t:"בחרו „זימון תור”", b:'חפשו כפתור <span class="em">„זימון תור”</span> והקישו עליו.', mock:'<div class="bubble">📅 זימון תור</div><div class="bubble">💊 מרשמים</div>' },
+      { t:"בחרו רופא", b:'בחרו את <span class="em">הרופא</span> (למשל רופא משפחה). תופיע רשימת זמנים.', mock:'<div class="bubble">ד′′ר כהן — רפואת משפחה</div>' },
+      { t:"בחרו זמן ואשרו", b:'הקישו על <span class="em">יום ושעה</span> ואז „אישור”. כדאי לרשום על פתק.', mock:'<div class="bubble me">יום שלישי · 10:30</div><div class="key">✓ אשר תור</div>' }
+    ] },
+  { id:"form", emoji:"📝", title:"למלא טופס באינטרנט", subtitle:"למלא פרטים בלי בלבול",
+    agent:[ "פותח את הטופס וקורא מה מבקשים",
+            "ממלא בשבילכם את הפרטים הידועים",
+            "משאיר ריקים רק דברים רגישים שתחליטו עליהם",
+            "עובר על הכול לפני שליחה" ],
+    result:{ icon:"🗂️", sum:"מילאתי את רוב הטופס. נשאר רק לעבור ולשלוח.",
+      did:["מילאתי שם, טלפון וכתובת מהפרטים שלכם","השארתי ריקים שדות רגישים — אתם מחליטים","עברתי שוב לוודא שאין טעות"],
+      tryLabel:"לעבור ולשלוח" },
+    show:[
+      { t:"קראו לאט", b:'יש <span class="em">שדות</span> למילוי. אין צורך למהר — קראו כל שורה.', mock:'<div class="field">שם מלא</div><div class="field">מספר טלפון</div>' },
+      { t:"מלאו שדה-שדה", b:'הקישו על שדה, הקלידו, ואז עברו לשדה הבא.', mock:'<div class="field">שם: <b>ישראל ישראלי</b></div><div class="field">טלפון…</div>' },
+      { t:"מה לא חובה", b:'שדות עם <span class="em">כוכבית *</span> הם חובה. אל תמסרו פרטים רגישים אם לא ברור למה.', tip:'אם מבקשים פרטים שנראים מיותרים — אפשר לעצור ולהתייעץ.' },
+      { t:"בדקו ושלחו", b:'<span class="em">עברו שוב</span> על מה שמילאתם, ואז הקישו „שלח”.', mock:'<div class="key">➤ שלח טופס</div>' }
+    ] }
 ];
+function getTask(id){ for(var i=0;i<TASKS.length;i++){ if(TASKS[i].id===id) return TASKS[i]; } return null; }
 
 /* =========================================================
    TTS — Hebrew read-aloud, honest fallback
    ========================================================= */
 var TTS = {
-  ok:("speechSynthesis" in window),
-  heVoice:null,
-  hasHe:false,
-  init:function(){
-    if(!this.ok) return;
-    var self=this;
-    var pick=function(){
-      var vs = window.speechSynthesis.getVoices()||[];
-      var he = vs.filter(function(v){ return /he|iw/i.test(v.lang); });
-      self.heVoice = he[0]||null; self.hasHe = !!self.heVoice;
-    };
-    pick();
-    window.speechSynthesis.onvoiceschanged = pick;
-  },
-  speak:function(text){
-    if(!this.ok || !settings.voice) return;
-    try{
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang="he-IL"; u.rate=.92; u.pitch=1;
-      if(this.heVoice) u.voice=this.heVoice;
-      window.speechSynthesis.speak(u);
-    }catch(e){}
-  },
+  ok:("speechSynthesis" in window), heVoice:null,
+  init:function(){ if(!this.ok)return; var self=this; var pick=function(){ var vs=window.speechSynthesis.getVoices()||[]; self.heVoice=vs.filter(function(v){return /he|iw/i.test(v.lang);})[0]||null; }; pick(); window.speechSynthesis.onvoiceschanged=pick; },
+  speak:function(t){ if(!this.ok||!settings.voice||!t)return; try{ window.speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang="he-IL"; u.rate=.92; if(this.heVoice)u.voice=this.heVoice; window.speechSynthesis.speak(u); }catch(e){} },
   stop:function(){ if(this.ok){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
 };
 TTS.init();
-
-/* strip HTML tags so TTS reads clean text */
 function plain(html){ var d=el("div"); d.innerHTML=html; return (d.textContent||"").replace(/\s+/g," ").trim(); }
 
 /* =========================================================
-   Voice INPUT — match speech to a task, honest fallback
+   Voice INPUT
    ========================================================= */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-function startVoiceInput(){
-  var hint = $("#vhint");
-  if(!SR){
-    hint.textContent = "הדפדפן הזה לא תומך בהקשבה לקול. אפשר פשוט להקיש על אחת התמונות למטה 👇";
-    return;
-  }
-  var rec = new SR();
-  rec.lang="he-IL"; rec.interimResults=false; rec.maxAlternatives=3;
-  hint.textContent = "מקשיב… דברו עכשיו 🎧";
-  TTS.speak("אני מקשיב, מה תרצו לעשות?");
-  rec.onresult = function(ev){
-    var said = "";
-    for(var i=0;i<ev.results.length;i++){ said += ev.results[i][0].transcript + " "; }
-    said = said.trim();
-    hint.textContent = '"' + said + '"';
-    var t = matchTask(said);
-    if(t){ hint.textContent = "מצוין! פותח: " + t.title; openTask(t.id); }
-    else { hint.textContent = "לא הצלחתי להבין. אפשר לבחור מהתמונות למטה 👇"; }
-  };
-  rec.onerror = function(ev){
-    if(ev && ev.error==="not-allowed"){ hint.textContent="הגישה למיקרופון חסומה. אפשר לבחור מהתמונות למטה 👇"; }
-    else { hint.textContent="לא שמעתי טוב. אפשר לנסות שוב, או לבחור מהתמונות 👇"; }
-  };
-  rec.onend = function(){ /* nothing */ };
-  try{ rec.start(); }catch(e){ hint.textContent="לא הצלחתי להפעיל את המיקרופון. אפשר לבחור מהתמונות 👇"; }
+function listen(onText, hintEl){
+  if(!SR){ if(hintEl) hintEl.textContent="הדפדפן הזה לא תומך בהקשבה. אפשר פשוט לכתוב 👆"; return; }
+  var rec=new SR(); rec.lang="he-IL"; rec.interimResults=false; rec.maxAlternatives=1;
+  if(hintEl) hintEl.textContent="מקשיב… דברו עכשיו 🎧";
+  TTS.speak("אני מקשיב");
+  rec.onresult=function(ev){ var s=""; for(var i=0;i<ev.results.length;i++) s+=ev.results[i][0].transcript+" "; s=s.trim(); if(hintEl) hintEl.textContent='„'+s+'”'; onText(s); };
+  rec.onerror=function(ev){ if(hintEl) hintEl.textContent=(ev&&ev.error==="not-allowed")?"הגישה למיקרופון חסומה. אפשר לכתוב 👆":"לא שמעתי טוב. נסו שוב או כתבו 👆"; };
+  try{ rec.start(); }catch(e){ if(hintEl) hintEl.textContent="לא הצלחתי להפעיל מיקרופון. אפשר לכתוב 👆"; }
 }
 function matchTask(s){
-  s = (s||"").toLowerCase();
-  var map = [
-    {id:"whatsapp", k:["וואטסאפ","וטסאפ","ווצאפ","הודעה","להודיע","לכתוב"]},
-    {id:"video",    k:["וידאו","וידיאו","שיחת","להתקשר","לראות","פנים"]},
-    {id:"email",    k:["מייל","אימייל","דואר","מכתב"]},
-    {id:"bill",     k:["חשבון","לשלם","תשלום","חשמל","מים","חוב"]},
-    {id:"doctor",   k:["רופא","תור","מרפאה","קופה","בריאות"]},
-    {id:"form",     k:["טופס","למלא","טפסים","בקשה"]}
-  ];
-  for(var i=0;i<map.length;i++){
-    for(var j=0;j<map[i].k.length;j++){ if(s.indexOf(map[i].k[j])>-1) return getTask(map[i].id); }
-  }
+  s=(s||"").toLowerCase();
+  var map=[ {id:"whatsapp",k:["וואטסאפ","וטסאפ","ווצאפ","הודעה","להודיע","לכתוב"]},{id:"video",k:["וידאו","וידיאו","שיחת","להתקשר","לראות","פנים"]},
+            {id:"email",k:["מייל","אימייל","דואר","מכתב"]},{id:"bill",k:["חשבון","לשלם","תשלום","חשמל","מים","חוב"]},
+            {id:"doctor",k:["רופא","תור","מרפאה","קופה","בריאות"]},{id:"form",k:["טופס","למלא","טפסים","בקשה"]} ];
+  for(var i=0;i<map.length;i++) for(var j=0;j<map[i].k.length;j++) if(s.indexOf(map[i].k[j])>-1) return map[i].id;
+  if(/מצלמ|לצלם|תמונה|מה זה|לחבר|חיבור/.test(s)) return "__cam";
   return null;
 }
-function getTask(id){ for(var i=0;i<TASKS.length;i++){ if(TASKS[i].id===id) return TASKS[i]; } return null; }
 
 /* =========================================================
-   RENDER — home grid
+   VIEWS
    ========================================================= */
+function showView(id){ $$(".view").forEach(function(v){ v.classList.toggle("active", v.id===id); }); window.scrollTo({top:0,behavior:"smooth"}); }
+function goHome(){ TTS.stop(); showView("homeView"); $("#vhint").textContent=""; }
+
+/* ---- Home grid ---- */
 function renderHome(){
-  var g = $("#taskGrid"); g.innerHTML="";
+  var g=$("#taskGrid"); g.innerHTML="";
   TASKS.forEach(function(t){
-    var b = el("button","card");
-    b.setAttribute("aria-label", t.title + " — " + t.subtitle);
-    b.innerHTML =
-      '<span class="emoji" aria-hidden="true">'+t.emoji+'</span>'+
-      '<span class="txt"><b>'+t.title+'</b><span>'+t.subtitle+'</span></span>'+
-      '<span class="go" aria-hidden="true">‹</span>';
+    var b=el("button","card");
+    b.setAttribute("aria-label", t.title+" — "+t.subtitle);
+    b.innerHTML='<span class="emoji" aria-hidden="true">'+t.emoji+'</span><span class="txt"><b>'+t.title+'</b><span>'+t.subtitle+'</span></span><span class="go" aria-hidden="true">‹</span>';
     b.addEventListener("click", function(){ openTask(t.id); });
     g.appendChild(b);
   });
+  // camera feature card
+  var cam=el("button","card cam");
+  cam.setAttribute("aria-label","מצלמה — מה זה ואיך לחבר");
+  cam.innerHTML='<span class="emoji" aria-hidden="true">📷</span><span class="txt"><b>מה זה? איך מחברים?</b><span>צלמו פריט — ואני אזהה, אסביר, ואחבר בשבילכם</span></span><span class="go" aria-hidden="true">‹</span>';
+  cam.addEventListener("click", openCamera);
+  g.appendChild(cam);
 }
 
 /* =========================================================
-   RENDER — walkthrough
+   TASK DETAIL — do-it-for-me + show-me
    ========================================================= */
-var cur = { task:null, i:0 };
+var cur = { task:null, mode:"do", step:0 };
 
 function openTask(id){
-  var t = getTask(id); if(!t) return;
-  cur.task=t; cur.i=0;
-  $("#wtEmoji").textContent=t.emoji;
-  $("#wtTitle").textContent=t.title;
+  var t=getTask(id); if(!t)return;
+  cur.task=t; cur.mode="do"; cur.step=0;
+  $("#tEmoji").textContent=t.emoji; $("#tTitle").textContent=t.title;
+  $("#modeDo").setAttribute("aria-pressed","true"); $("#modeShow").setAttribute("aria-pressed","false");
   showView("taskView");
-  renderStep();
-  window.scrollTo({top:0, behavior:"smooth"});
+  renderDo();
 }
-
-function renderStep(){
-  var t=cur.task, n=t.steps.length, s=t.steps[cur.i];
-  var host=$("#stepHost"); host.innerHTML="";
-
-  /* progress */
-  $("#progFill").style.width = Math.round(((cur.i)/(n)) * 100) + "%";
-  $("#progLbl").textContent = "צעד " + (cur.i+1) + " מתוך " + n;
-
-  var box = el("div","step");
-  box.appendChild(el("div","num", String(cur.i+1)));
-  box.appendChild(el("h2", null, s.title));
-  var body = el("div","body"); body.innerHTML=s.body; box.appendChild(body);
-
-  if(s.mock){ var m=el("div","mock"); m.innerHTML=s.mock; box.appendChild(m); }
-
-  if(s.tip){
-    var tip=el("div","tip");
-    tip.innerHTML='<span class="ic" aria-hidden="true">🛡️</span><div>'+s.tip+'</div>';
-    box.appendChild(tip);
-  }
-
-  /* actions */
-  var acts = el("div","actions");
-
-  var listen = el("button","btn listen");
-  listen.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
-  listen.addEventListener("click", function(){ TTS.speak(s.title + ". " + plain(s.body) + (s.tip? ". " + plain(s.tip):"")); });
-  acts.appendChild(listen);
-
-  if(cur.i>0){
-    var back=el("button","btn ghost");
-    back.innerHTML='<span aria-hidden="true">→</span> הקודם';
-    back.addEventListener("click", function(){ cur.i--; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); });
-    acts.appendChild(back);
-  }
-
-  var next=el("button","btn primary");
-  next.innerHTML = (cur.i < n-1) ? 'הבא <span aria-hidden="true">‹</span>' : 'סיימתי! <span aria-hidden="true">✓</span>';
-  next.addEventListener("click", function(){
-    if(cur.i < n-1){ cur.i++; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); }
-    else { finishTask(); }
-  });
-  acts.appendChild(next);
-
-  box.appendChild(acts);
-
-  /* family helper row */
-  var hr = el("div","helprow");
-  var ask = el("button","linkbtn");
-  ask.innerHTML = '👪 לא בטוחים? בקשו עזרה מבן משפחה';
-  ask.addEventListener("click", askHelper);
-  hr.appendChild(ask);
-  box.appendChild(hr);
-
-  host.appendChild(box);
-
-  /* auto read-aloud the step if voice is on */
-  if(settings.voice){ TTS.speak(s.title + ". " + plain(s.body)); }
-}
-
-function finishTask(){
-  TTS.stop();
-  $("#progFill").style.width="100%";
-  $("#progLbl").textContent="הושלם!";
-  settings.done = (settings.done||0)+1; persist();
-  var host=$("#stepHost"); host.innerHTML="";
-  var d=el("div","step done");
-  d.innerHTML =
-    '<div class="big" aria-hidden="true">🎉</div>'+
-    '<h2>כל הכבוד! סיימתם.</h2>'+
-    '<p>עברתם את כל הצעדים יפה מאוד. אפשר לחזור על זה בכל פעם שתרצו — אני תמיד כאן.</p>';
+function renderModeIntro(){
+  var t=cur.task, host=$("#taskHost"); host.innerHTML="";
+  var p=el("div","panel");
+  p.innerHTML='<h2>'+esc(t.title)+'</h2><div class="body">'+
+    'אני אטפל בזה בשבילכם, צעד אחר צעד. לפני כל פעולה שאי-אפשר לבטל (שליחה, תשלום) — אעצור ואבקש את אישורכם.</div>';
   var acts=el("div","actions");
-  var again=el("button","btn ghost"); again.textContent="לעבור שוב";
-  again.addEventListener("click", function(){ cur.i=0; renderStep(); window.scrollTo({top:0,behavior:"smooth"}); });
-  var home=el("button","btn primary"); home.innerHTML='למסך הבית <span aria-hidden="true">‹</span>';
-  home.addEventListener("click", goHome);
-  acts.appendChild(again); acts.appendChild(home);
-  d.appendChild(acts); host.appendChild(d);
-  if(settings.voice) TTS.speak("כל הכבוד, סיימתם!");
-  window.scrollTo({top:0,behavior:"smooth"});
+  var go=el("button","btn primary"); go.innerHTML='<span aria-hidden="true">🤲</span> '+(t.sensitive?"קדימה — בכפוף לאישורי":"קדימה, תעשה את זה");
+  go.addEventListener("click", runAgent);
+  var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
+  listen2.addEventListener("click", function(){ TTS.speak(t.title+". אני אטפל בזה בשבילכם, צעד אחר צעד."); });
+  acts.appendChild(go); acts.appendChild(listen2);
+  p.appendChild(acts);
+  host.appendChild(p);
+  if(settings.voice) TTS.speak(t.title+". אני אטפל בזה בשבילכם.");
+}
+function renderDo(){ cur.mode="do"; renderModeIntro(); }
+
+async function runAgent(){
+  var t=cur.task, host=$("#taskHost"); host.innerHTML="";
+  var p=el("div","panel");
+  p.innerHTML='<h2><span aria-hidden="true">🤲</span> עֶזְרָא עובד בשבילכם…</h2>';
+  var work=el("div","agentwork");
+  t.agent.forEach(function(line,i){
+    var row=el("div","line"); row.id="aw"+i;
+    row.innerHTML='<span class="dot" aria-hidden="true">'+(i+1)+'</span><span>'+esc(line)+'</span>';
+    work.appendChild(row);
+  });
+  p.appendChild(work); host.appendChild(p);
+  if(settings.voice) TTS.speak("אני עובד על זה בשבילכם");
+  // animate
+  for(var i=0;i<t.agent.length;i++){
+    var row=$("#aw"+i); row.classList.add("active");
+    await delay(820);
+    row.classList.remove("active"); row.classList.add("done");
+    row.querySelector(".dot").textContent="✓";
+  }
+  await delay(350);
+  renderResult();
 }
 
-function goHome(){ TTS.stop(); showView("homeView"); window.scrollTo({top:0,behavior:"smooth"}); $("#vhint").textContent=""; }
+function renderResult(){
+  var t=cur.task, r=t.result, host=$("#taskHost"); host.innerHTML="";
+  var p=el("div","panel result");
+  var didHtml = r.did.map(function(d){ return "<li>"+esc(d)+"</li>"; }).join("");
+  p.innerHTML =
+    '<div class="crown" aria-hidden="true">'+(r.icon||"✓")+'</div>'+
+    '<h2>עשיתי בשבילכם ✓</h2>'+
+    '<p class="sum">'+esc(r.sum)+'</p>'+
+    '<div class="didbox"><h3><span aria-hidden="true">📋</span> מה עשיתי בשבילכם</h3><ul>'+didHtml+'</ul></div>'+
+    (r.note? '<div class="tip"><span class="ic" aria-hidden="true">🔒</span><div>'+esc(r.note)+'</div></div>':'');
+  if(r.scam){
+    var tip=el("div","tip");
+    tip.innerHTML='<span class="ic" aria-hidden="true">🛡️</span><div><b>בדקתי שזה בטוח.</b> אם מישהו אי-פעם לוחץ עליכם למסור קוד או לשלם בדחיפות — עצרו והתייעצו איתי או עם בן משפחה.</div>';
+    p.appendChild(tip);
+  }
+  var acts=el("div","actions");
+  var confirmBtn=el("button","btn primary"); confirmBtn.innerHTML='<span aria-hidden="true">✓</span> '+esc(r.tryLabel);
+  confirmBtn.addEventListener("click", function(){ confirmAction(t); });
+  var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
+  listen2.addEventListener("click", function(){ TTS.speak("עשיתי בשבילכם. "+r.sum+". "+r.did.join(". ")); });
+  acts.appendChild(confirmBtn); acts.appendChild(listen2);
+  p.appendChild(acts);
+  // helper row
+  var hr=el("div","helprow");
+  var ask=el("button","linkbtn"); ask.innerHTML="👪 לערב בן משפחה";
+  ask.addEventListener("click", askHelper);
+  var home=el("button","linkbtn"); home.innerHTML="‹ חזרה למסך הבית";
+  home.addEventListener("click", goHome);
+  hr.appendChild(ask); hr.appendChild(home);
+  p.appendChild(hr);
+  host.appendChild(p);
+  if(settings.voice) TTS.speak("עשיתי בשבילכם. "+r.sum);
+}
 
-function showView(id){
-  $$(".view").forEach(function(v){ v.classList.toggle("active", v.id===id); });
+/* consent gate before any irreversible (simulated) action */
+function confirmAction(t){
+  var sensitive = t.sensitive || (t.result && t.result.scam);
+  var needFamily = settings.helper && t.id==="bill"; // co-approval demo for payments
+  modal("רגע אחד — אישור אחרון", "modal-confirm",
+    '<p>אני עומד '+ (t.id==="bill"?"להמשיך לתשלום מאובטח":"לבצע את הפעולה") +' בשבילכם. '+
+    (sensitive? 'זו פעולה שאי-אפשר לבטל, אז חשוב שתאשרו במודע.':'') +'</p>'+
+    (needFamily? '<div class="chip">👪 '+esc(settings.helper.name)+' יקבל/תקבל הודעה על הפעולה (הדגמה)</div>':'')+
+    '<p style="font-size:.92rem">זהו אב-טיפוס — שום כסף לא זז ושום הודעה לא נשלחת באמת.</p>',
+    [ { label:"כן, אני מאשר/ת", cls:"primary", act:function(){
+          closeModal();
+          var msg = t.id==="bill" ? "אישרתם להמשיך לתשלום מאובטח של "+t.title :
+                    t.id==="whatsapp" ? "אישרתם — ההודעה נשלחה (הדגמה)" :
+                    t.id==="email" ? "אישרתם — התשובה נשלחה (הדגמה)" :
+                    t.id==="doctor" ? "אישרתם — התור נקבע (הדגמה)" :
+                    "אישרתם — "+t.title;
+          logAction(msg);
+          toast("בוצע ✓ — רשמתי לכם ביומן הפעולות");
+          if(needFamily) logAction("נשלחה הודעה ל"+settings.helper.name+" על הפעולה (הדגמה)");
+          if(settings.voice) TTS.speak("בוצע. אפשר לראות בדיוק מה עשיתי ביומן הפעולות.");
+        } },
+      { label:"לא עכשיו", cls:"ghost", act:closeModal } ]
+  );
+}
+
+/* ---- show-me walkthrough ---- */
+function renderShow(){
+  cur.mode="show"; cur.step=0; renderStep();
+}
+function renderStep(){
+  var t=cur.task, steps=t.show, n=steps.length, s=steps[cur.step], host=$("#taskHost"); host.innerHTML="";
+  var prog=el("div","progress");
+  prog.innerHTML='<div class="bar"><div class="fill" style="width:'+Math.round((cur.step/n)*100)+'%"></div></div><div class="lbl">צעד '+(cur.step+1)+' מתוך '+n+'</div>';
+  host.appendChild(prog);
+  var p=el("div","panel");
+  p.appendChild(el("div","stepnum",String(cur.step+1)));
+  p.appendChild(el("h2",null,s.t));
+  var body=el("div","body"); body.innerHTML=s.b; p.appendChild(body);
+  if(s.mock){ var m=el("div","mock"); m.innerHTML=s.mock; p.appendChild(m); }
+  if(s.tip){ var tip=el("div","tip"); tip.innerHTML='<span class="ic" aria-hidden="true">🛡️</span><div>'+s.tip+'</div>'; p.appendChild(tip); }
+  var acts=el("div","actions");
+  var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
+  listen2.addEventListener("click", function(){ TTS.speak(s.t+". "+plain(s.b)+(s.tip?". "+plain(s.tip):"")); });
+  acts.appendChild(listen2);
+  if(cur.step>0){ var back=el("button","btn ghost"); back.innerHTML='<span aria-hidden="true">→</span> הקודם'; back.addEventListener("click",function(){ cur.step--; renderStep(); }); acts.appendChild(back); }
+  var next=el("button","btn primary");
+  next.innerHTML = (cur.step<n-1)? 'הבא <span aria-hidden="true">‹</span>' : 'סיימתי! <span aria-hidden="true">✓</span>';
+  next.addEventListener("click", function(){ if(cur.step<n-1){ cur.step++; renderStep(); } else { finishShow(); } });
+  acts.appendChild(next);
+  p.appendChild(acts);
+  host.appendChild(p);
+  if(settings.voice) TTS.speak(s.t+". "+plain(s.b));
+}
+function finishShow(){
+  var host=$("#taskHost"); host.innerHTML="";
+  var p=el("div","panel result");
+  p.innerHTML='<div class="crown" aria-hidden="true">🎉</div><h2>כל הכבוד! סיימתם.</h2><p class="sum">עברתם את כל הצעדים יפה מאוד. אני תמיד כאן — בפעם הבאה אפשר גם פשוט לתת לי לעשות את זה בשבילכם.</p>';
+  var acts=el("div","actions");
+  var again=el("button","btn ghost"); again.textContent="לעבור שוב"; again.addEventListener("click",function(){ cur.step=0; renderStep(); });
+  var doit=el("button","btn primary"); doit.innerHTML='<span aria-hidden="true">🤲</span> שאעשה בשבילכם'; doit.addEventListener("click", function(){ $("#modeDo").setAttribute("aria-pressed","true"); $("#modeShow").setAttribute("aria-pressed","false"); renderDo(); });
+  acts.appendChild(doit); acts.appendChild(again);
+  p.appendChild(acts); host.appendChild(p);
+  if(settings.voice) TTS.speak("כל הכבוד, סיימתם!");
 }
 
 /* =========================================================
-   Family helper (simulated)
+   CAMERA — capture, ask, identify+act (live or honest demo)
    ========================================================= */
-function helperChipHTML(){
-  if(settings.helper && settings.helper.name){
-    return '<div class="helper-chip">👪 בן המשפחה שלכם: <b>'+escapeHtml(settings.helper.name)+'</b></div>';
+var camShots=[]; // {dataUrl, media_type, b64}
+function openCamera(){ camShots=[]; $("#camResult").innerHTML=""; $$("#camQuick .qchip").forEach(function(c){c.setAttribute("aria-pressed","false");}); renderShots(); showView("camView"); if(settings.voice) TTS.speak("צלמו פריט, ואשאל מה זה. צלמו שניים — ואחבר ביניהם בשבילכם."); }
+function renderShots(){
+  var box=$("#shots"); box.innerHTML="";
+  camShots.forEach(function(s,i){
+    var d=el("div","shot");
+    d.innerHTML='<img src="'+s.dataUrl+'" alt="תמונה '+(i+1)+'">';
+    var rm=el("button","rm"); rm.textContent="×"; rm.setAttribute("aria-label","הסר תמונה"); rm.addEventListener("click",function(){ camShots.splice(i,1); renderShots(); });
+    d.appendChild(rm); box.appendChild(d);
+  });
+  if(camShots.length<3){
+    var add=el("button","shot add"); add.setAttribute("aria-label","הוסף תמונה"); add.innerHTML='<span aria-hidden="true">＋</span>';
+    add.addEventListener("click",function(){ $("#camFile").click(); }); box.appendChild(add);
   }
-  return '<p>עדיין לא הוספתם בן משפחה.</p>';
 }
+$("#camFile").addEventListener("change", function(e){
+  var files=Array.prototype.slice.call(e.target.files||[]);
+  files.forEach(function(f){
+    if(camShots.length>=3) return;
+    var r=new FileReader();
+    r.onload=function(ev){
+      var url=ev.target.result;
+      var b64=url.split(",")[1]||"";
+      camShots.push({ dataUrl:url, media_type:f.type||"image/jpeg", b64:b64 });
+      renderShots();
+    };
+    r.readAsDataURL(f);
+  });
+  e.target.value="";
+});
+$$("#camQuick .qchip").forEach(function(c){ c.addEventListener("click",function(){ $$("#camQuick .qchip").forEach(function(x){x.setAttribute("aria-pressed", x===c?"true":"false");}); }); });
+$("#camAsk").addEventListener("click", camAsk);
+
+async function camAsk(){
+  if(camShots.length===0){ toast("צלמו קודם תמונה אחת לפחות 📷"); return; }
+  var qc=$("#camQuick .qchip[aria-pressed='true']");
+  var q = qc ? qc.getAttribute("data-q") : (camShots.length>=2? "איך מחברים את זה לזה?" : "מה זה? תסביר לי בפשטות.");
+  var out=$("#camResult");
+  out.innerHTML='<div class="panel"><div class="typing" aria-label="עֶזְרָא מסתכל"><span></span><span></span><span></span></div><p class="body" style="margin-top:10px">עֶזְרָא מסתכל על התמונה…</p></div>';
+  if(settings.voice) TTS.speak("רגע, אני מסתכל");
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+
+  var text=null, demo=false, liveErr=null;
+  if(AI.hasKey()){
+    try{
+      var content=[];
+      camShots.forEach(function(s){ content.push({ type:"image", source:{ type:"base64", media_type:s.media_type, data:s.b64 } }); });
+      content.push({ type:"text", text:
+        "המשתמש הוא אדם מבוגר שצילם "+(camShots.length>=2?"שני פריטים":"פריט")+" ושואל: \""+q+"\". "+
+        "ענה בעברית פשוטה וחמה. (1) זהה בקצרה מה רואים. (2) הסבר בפשטות מה עושים, בצעדים קצרים וברורים. "+
+        (camShots.length>=2? "(3) הסבר איך לחבר אותם. ":"")+
+        "אם זה דורש פעולה — נסח בסוף שורה אחת 'מה אעשה בשבילך' בנימה אגבית. שמור על 4-7 משפטים." });
+      text = await AI.call([{ role:"user", content:content }], EZRA_SYSTEM, 700);
+    }catch(err){ demo=true; liveErr=String(err.message||err); }
+  } else { demo=true; }
+
+  if(demo){ text = camDemoAnswer(q, camShots.length); }
+  renderCamAnswer(text, demo, q, liveErr);
+}
+function camDemoAnswer(q, n){
+  if(n>=2){
+    return "אני רואה שני מכשירים — נראה כמו אוזניות אלחוטיות וטלפון. כדי לחבר אותם:\n" +
+      "1. פתחו את ההגדרות בטלפון והדליקו את ה-Bluetooth.\n" +
+      "2. החזיקו את כפתור האוזניות עד שמהבהבת נורה.\n" +
+      "3. בטלפון, הקישו על שם האוזניות שיופיע ברשימה.\n\n" +
+      "מה אעשה בשבילך: פתחתי את מסך ה-Bluetooth והכנתי הכול — נשאר רק שתקישו על האוזניות כשיופיעו. ✓";
+  }
+  return "אני רואה מכשיר חשמלי. כדי להפעיל אותו:\n" +
+    "1. חברו את הכבל לחשמל ולשקע במכשיר.\n" +
+    "2. חפשו כפתור הפעלה (לרוב עם הסימן ⏻) ולחצו עליו.\n" +
+    "3. חכו כמה שניות שהמסך יידלק.\n\n" +
+    "מה אעשה בשבילך: סימנתי לכם איפה כפתור ההפעלה ומה הסדר. ✓";
+}
+function renderCamAnswer(text, demo, q, liveErr){
+  var out=$("#camResult"); out.innerHTML="";
+  var p=el("div","panel");
+  var note = !demo ? '' :
+    (liveErr ? '<div class="tip"><span class="ic" aria-hidden="true">⚠️</span><div>ניסיתי להסתכל בתמונה האמיתית, אבל <b>'+esc(liveErr)+'</b>. בינתיים הנה תשובת הדגמה.</div></div>'
+             : '<div class="tip"><span class="ic" aria-hidden="true">ℹ️</span><div>זו <b>תשובת הדגמה</b>. כדי שאזהה את התמונה האמיתית שלכם, הפעילו מצב חי בהגדרות (☰).</div></div>');
+  p.innerHTML='<h2><span aria-hidden="true">👁️</span> הנה מה שראיתי</h2>'+ note +
+    '<div class="body" style="white-space:pre-wrap;margin-top:12px">'+esc(text)+'</div>';
+  var acts=el("div","actions");
+  var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי'; listen2.addEventListener("click",function(){ TTS.speak(text); });
+  var again=el("button","btn ghost"); again.textContent="לצלם שוב"; again.addEventListener("click",function(){ camShots=[]; renderShots(); $("#camResult").innerHTML=""; window.scrollTo({top:0,behavior:"smooth"}); });
+  acts.appendChild(listen2); acts.appendChild(again);
+  p.appendChild(acts); out.appendChild(p);
+  logAction("צילמתם פריט ושאלתם: „"+q+"” — הסברתי וזיהיתי בשבילכם");
+  if(settings.voice) TTS.speak(text);
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+
+/* =========================================================
+   CONVERSATION — type/speak, Ezra acts (live or honest demo)
+   ========================================================= */
+var chatHistory=[]; // {role, content}
+function openChat(seed){
+  showView("chatView");
+  if(chatHistory.length===0){
+    addChat("ez","שלום, אני עֶזְרָא 🙂\nספרו לי מה צריך — ואני אטפל בזה בשבילכם. אפשר לכתוב או לדבר אליי.");
+  }
+  if(seed){ setTimeout(function(){ sendChat(seed); }, 250); }
+  setTimeout(function(){ $("#chatInput").focus(); }, 300);
+}
+function addChat(who, text, acts){
+  var log=$("#chatLog");
+  var m=el("div","msg "+who);
+  if(who==="ez"){ m.innerHTML='<span class="who">עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
+  else { m.textContent=text; }
+  if(acts && acts.length){
+    var bar=el("div","actbar");
+    acts.forEach(function(a){ var b=el("button","miniact",a.label); b.addEventListener("click",a.act); bar.appendChild(b); });
+    m.appendChild(bar);
+  }
+  log.appendChild(m);
+  log.parentElement.scrollIntoView(false);
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  return m;
+}
+function typingOn(){ var log=$("#chatLog"); var t=el("div","typing"); t.id="typingDots"; t.innerHTML='<span></span><span></span><span></span>'; log.appendChild(t); window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+function typingOff(){ var t=$("#typingDots"); if(t) t.remove(); }
+
+async function sendChat(text){
+  text=(text||"").trim(); if(!text) return;
+  addChat("me", text);
+  chatHistory.push({ role:"user", content:text });
+  typingOn();
+  var reply=null, demo=false, liveErr=null;
+  if(AI.hasKey()){
+    try{ reply = await AI.call(chatHistory.slice(-10), EZRA_SYSTEM, 600); }
+    catch(e){ demo=true; liveErr=String(e.message||e); }
+  } else demo=true;
+  if(demo){ reply = chatDemoReply(text); }
+  typingOff();
+  chatHistory.push({ role:"assistant", content:reply });
+  // if the request looks actionable, offer a do-it shortcut
+  var tid = matchTask(text);
+  var acts=null;
+  if(tid && tid!=="__cam" && getTask(tid)){
+    var tt=getTask(tid);
+    acts=[{ label:"🤲 שאעשה בשבילכם: "+tt.title, act:function(){ openTask(tid); } }];
+  } else if(tid==="__cam"){
+    acts=[{ label:"📷 לפתוח מצלמה", act:openCamera }];
+  }
+  var demoNote = !demo ? "" : (liveErr ? "\n\n("+liveErr+" — מציג תשובת הדגמה)" : "\n\n(תשובת הדגמה — להפעלת AI חי, פתחו ☰ → מצב חי)");
+  addChat("ez", reply + demoNote, acts);
+  if(settings.voice) TTS.speak(reply);
+}
+function chatDemoReply(text){
+  var tid=matchTask(text);
+  if(tid && tid!=="__cam" && getTask(tid)){
+    var t=getTask(tid);
+    return "בשמחה! זה משהו שאני יכול לעשות בשבילכם — „"+t.title+"”.\nאני אטפל בכל הצעדים, ולפני כל דבר שאי-אפשר לבטל אבקש את אישורכם. רוצים שאתחיל?";
+  }
+  if(/שלום|היי|בוקר|ערב|מה נשמע/.test(text)) return "שלום וברכה 🙂 איך אני יכול לעזור לכם היום? אפשר לבקש ממני לשלוח הודעה, לקבוע תור, לבדוק חשבון, או פשוט לשאול אותי כל דבר.";
+  if(/תודה/.test(text)) return "על לא דבר, בכיף תמיד 🙂 אני כאן בשבילכם.";
+  return "הבנתי. אני כאן כדי לעשות בשבילכם — אפשר לבקש ממני לשלוח הודעה בוואטסאפ, לקבוע תור לרופא, לבדוק חשבון, או לצלם פריט ולשאול „מה זה”. מה מהם נשמע מתאים?";
+}
+
+/* =========================================================
+   ASK BAR (home) — route to task / chat / camera
+   ========================================================= */
+function homeAsk(text){
+  text=(text||"").trim(); if(!text) return;
+  $("#askInput").value="";
+  var tid=matchTask(text);
+  if(tid==="__cam"){ openCamera(); return; }
+  if(tid && getTask(tid)){ openTask(tid); return; }
+  openChat(text);
+}
+$("#askSend").addEventListener("click", function(){ homeAsk($("#askInput").value); });
+$("#askInput").addEventListener("keydown", function(e){ if(e.key==="Enter") homeAsk($("#askInput").value); });
+$("#askMic").addEventListener("click", function(){ listen(function(s){ $("#askInput").value=s; setTimeout(function(){ homeAsk(s); }, 400); }, $("#vhint")); });
+
+$("#chatSend").addEventListener("click", function(){ var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); });
+$("#chatInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); } });
+$("#chatMic").addEventListener("click", function(){ listen(function(s){ $("#chatInput").value=s; }, null); });
+
+/* =========================================================
+   FAMILY HELPER
+   ========================================================= */
 function openHelperModal(){
-  var h = settings.helper||{};
-  modal(
-    "בן משפחה לעזרה",
-    '<p>אפשר לבחור בן משפחה אחד שתמיד אפשר לפנות אליו לעזרה. הפרטים נשמרים <b>רק במכשיר הזה</b>.</p>'+
-    helperChipHTML()+
-    '<label for="hName">שם</label><input id="hName" type="text" placeholder="למשל: רותי, הבת" value="'+escapeHtml(h.name||"")+'">'+
-    '<label for="hPhone">טלפון (לא חובה)</label><input id="hPhone" type="tel" inputmode="tel" placeholder="050-0000000" value="'+escapeHtml(h.phone||"")+'">',
-    [
-      { label:"שמירה", cls:"primary", act:function(){
-          var name=$("#hName").value.trim(), phone=$("#hPhone").value.trim();
-          if(!name){ toast("צריך למלא שם"); return; }
-          settings.helper={name:name, phone:phone}; persist();
-          closeModal(); toast("נשמר! "+name+" נוסף/ה כבן משפחה לעזרה");
-      }},
-      { label:"סגירה", cls:"ghost", act:closeModal }
-    ]
+  var h=settings.helper||{};
+  modal("בן משפחה לעזרה", "modal-helper",
+    '<p>בחרו בן משפחה אחד שתמיד אפשר לערב. הפרטים נשמרים <b>רק במכשיר הזה</b>.</p>'+
+    (h.name? '<div class="chip">👪 בן המשפחה שלכם: <b>'+esc(h.name)+'</b></div>':'')+
+    '<label for="hName">שם</label><input id="hName" type="text" placeholder="למשל: רותי, הבת" value="'+esc(h.name||"")+'">'+
+    '<label for="hPhone">טלפון (לא חובה)</label><input id="hPhone" type="tel" inputmode="tel" placeholder="050-0000000" value="'+esc(h.phone||"")+'">',
+    [ { label:"שמירה", cls:"primary", act:function(){ var n=$("#hName").value.trim(), p=$("#hPhone").value.trim(); if(!n){ toast("צריך למלא שם"); return; } settings.helper={name:n,phone:p}; persist(); closeModal(); toast("נשמר! "+n+" נוסף/ה כבן משפחה"); } },
+      (h.name? { label:"הסרה", cls:"ghost", act:function(){ settings.helper=null; persist(); closeModal(); toast("הוסר"); } } : { label:"סגירה", cls:"ghost", act:closeModal }) ]
   );
 }
 function askHelper(){
   if(settings.helper && settings.helper.name){
-    var name = settings.helper.name;
-    modal(
-      "לבקש עזרה מ"+escapeHtml(name),
-      '<p>נשלח ל<b>'+escapeHtml(name)+'</b> בקשת עזרה קצרה, עם שם המשימה שאתם עושים עכשיו'+
-      ( cur.task ? ' ("'+escapeHtml(cur.task.title)+'")' : '' )+
-      '. כך הוא/היא יוכל/תוכל ללוות אתכם.</p>'+
-      '<p style="font-size:.95rem">(זהו אב-טיפוס — הבקשה כאן היא הדגמה ולא נשלחת באמת.)</p>',
-      [
-        { label:"שלח/י בקשה", cls:"primary", act:function(){ closeModal(); toast("נשלחה בקשת עזרה ל"+name+" 👪 (הדגמה)"); }},
-        { label:"ביטול", cls:"ghost", act:closeModal }
-      ]
-    );
-  } else {
-    openHelperModal();
-  }
+    var n=settings.helper.name;
+    modal("לערב את "+esc(n), "modal-ask",
+      '<p>אשלח ל<b>'+esc(n)+'</b> בקשה קצרה ללוות אתכם'+(cur.task? ' במשימה „'+esc(cur.task.title)+'”':'')+'.</p><p style="font-size:.92rem">(אב-טיפוס — לא נשלח באמת.)</p>',
+      [ { label:"שלח/י", cls:"primary", act:function(){ closeModal(); logAction("ביקשתם עזרה מ"+n+(cur.task?" במשימה „"+cur.task.title+"”":"")+" (הדגמה)"); toast("נשלחה בקשה ל"+n+" 👪"); } },
+        { label:"ביטול", cls:"ghost", act:closeModal } ]);
+  } else openHelperModal();
 }
 
-/* generic modal */
-function modal(title, bodyHTML, buttons){
+/* =========================================================
+   MENU / SETTINGS / LIVE-AI KEY / AUDIT / RESET
+   ========================================================= */
+function openMenu(){
+  var live=AI.hasKey();
+  modal("הגדרות ותפריט", "modal-menu",
+    '<p>הכול במקום אחד — בלי בלבול.</p>'+
+    '<div class="actions" style="flex-direction:column;align-items:stretch;gap:10px;margin-top:8px">'+
+      '<button class="btn ghost" id="mFamily" style="justify-content:flex-start"><span aria-hidden="true">👪</span> בן משפחה'+(settings.helper&&settings.helper.name?': '+esc(settings.helper.name):'')+'</button>'+
+      '<button class="btn ghost" id="mAudit" style="justify-content:flex-start"><span aria-hidden="true">📋</span> מה עֶזְרָא עשה (יומן פעולות)</button>'+
+      '<button class="btn ghost" id="mLive" style="justify-content:flex-start"><span class="statusdot '+(live?"live":"demo")+'" aria-hidden="true"></span> מצב AI: '+(live?"חי ✓":"הדגמה")+'</button>'+
+      '<button class="btn ghost" id="mReset" style="justify-content:flex-start;color:var(--warn)"><span aria-hidden="true">♻️</span> איפוס — מחיקת כל המידע</button>'+
+    '</div>'+
+    '<div class="row"><button class="btn primary" id="mClose">סגירה</button></div>'
+  );
+  $("#mFamily").addEventListener("click", openHelperModal);
+  $("#mAudit").addEventListener("click", openAudit);
+  $("#mLive").addEventListener("click", openLive);
+  $("#mReset").addEventListener("click", openReset);
+  $("#mClose").addEventListener("click", closeModal);
+}
+function openLive(){
+  var live=AI.hasKey();
+  modal("מצב AI חי", "modal-live",
+    '<p>עֶזְרָא יכול לעבוד בשני מצבים:</p>'+
+    '<p><span class="statusdot demo" aria-hidden="true"></span> <b>הדגמה</b> — תשובות לדוגמה, בלי חיבור לאינטרנט. תמיד עובד.</p>'+
+    '<p><span class="statusdot live" aria-hidden="true"></span> <b>חי</b> — עֶזְרָא באמת מבין את התמונות שלכם ומשוחח חופשי, באמצעות מפתח Anthropic <b>משלכם</b>.</p>'+
+    '<label for="apiKey">מפתח Anthropic (נשמר רק במכשיר הזה)</label>'+
+    '<input id="apiKey" type="password" placeholder="sk-ant-…" value="'+esc(settings.key||"")+'" autocomplete="off">'+
+    '<p style="font-size:.9rem">המפתח נשמר מקומית בלבד ולא נשלח לאף אחד מלבד Anthropic. בלי מפתח — נשארים במצב הדגמה (וזה בסדר גמור).</p>',
+    [ { label:"שמירה", cls:"primary", act:function(){ settings.key=$("#apiKey").value.trim(); persist(); updateModeFlag(); closeModal(); toast(AI.hasKey()?"מצב חי הופעל ✓":"חזרנו למצב הדגמה"); } },
+      (live? { label:"כיבוי מצב חי", cls:"ghost", act:function(){ settings.key=""; persist(); updateModeFlag(); closeModal(); toast("מצב חי כובה"); } } : { label:"ביטול", cls:"ghost", act:closeModal }) ]
+  );
+}
+function openAudit(){
+  var items=(settings.audit||[]);
+  var list = items.length ? '<ul class="auditlist">'+items.map(function(a){ return '<li>'+esc(a.text)+'<span class="t">'+fmtTime(a.at)+'</span></li>'; }).join("")+'</ul>'
+    : '<ul class="auditlist"><li class="empty">עדיין לא עשיתי שום דבר עבורכם. כל פעולה שאעשה תופיע כאן בעברית פשוטה.</li></ul>';
+  modal("מה עֶזְרָא עשה בשבילכם", "modal-audit",
+    '<p>זו רשימה שקופה של כל מה שעשיתי — כדי ש„עשיתי בשבילכם” לעולם לא יהיה קופסה שחורה.</p>'+list,
+    [ (items.length? { label:"ניקוי היומן", cls:"ghost", act:function(){ settings.audit=[]; persist(); closeModal(); toast("היומן נוקה"); } } : null),
+      { label:"סגירה", cls:"primary", act:closeModal } ].filter(Boolean)
+  );
+}
+function openReset(){
+  modal("איפוס מלא", "modal-reset",
+    '<p>זה ימחק <b>הכול</b> מהמכשיר הזה: בן המשפחה, יומן הפעולות, המפתח וההעדפות. אי-אפשר לבטל.</p>',
+    [ { label:"כן, מחקו הכול", cls:"primary", act:function(){ try{ localStorage.removeItem("ezra.v2"); }catch(e){} settings={ fs:1, theme:"light", voice:true, helper:null, audit:[], key:"" }; persist(); applyFs(); applyTheme(); applyVoice(); updateModeFlag(); closeModal(); goHome(); toast("הכול אופס ✓"); } },
+      { label:"ביטול", cls:"ghost", act:closeModal } ]
+  );
+}
+
+/* =========================================================
+   Generic modal
+   ========================================================= */
+function modal(title, cls, bodyHTML, buttons){
   var c=$("#modalCard");
-  c.innerHTML='<h2 id="modalTitle">'+escapeHtml(title)+'</h2>'+bodyHTML+'<div class="row" id="mRow"></div>';
-  var row=$("#mRow", c);
-  (buttons||[]).forEach(function(b){
-    var btn=el("button","btn "+(b.cls||"ghost"), b.label);
-    btn.addEventListener("click", b.act);
-    row.appendChild(btn);
-  });
+  c.innerHTML='<h2 id="modalTitle">'+esc(title)+'</h2>'+bodyHTML+'<div class="row" id="mRow"></div>';
+  var row=$("#mRow",c);
+  (buttons||[]).forEach(function(b){ var btn=el("button","btn "+(b.cls||"ghost"), b.label); btn.addEventListener("click", b.act); row.appendChild(btn); });
+  if(!buttons||!buttons.length) row.remove();
   $("#modalBg").classList.add("open");
-  var first = c.querySelector("input,button"); if(first) first.focus();
+  var first=c.querySelector("input,button"); if(first) first.focus();
 }
 function closeModal(){ $("#modalBg").classList.remove("open"); }
 $("#modalBg").addEventListener("click", function(e){ if(e.target.id==="modalBg") closeModal(); });
@@ -763,64 +1068,41 @@ document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModa
 
 /* toast */
 var toastT;
-function toast(msg){
-  var t=$("#toast"); t.textContent=msg; t.classList.add("show");
-  clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 3200);
-}
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function toast(msg){ var t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 3300); }
 
 /* =========================================================
    Settings UI wiring
    ========================================================= */
 function applyFs(){ document.documentElement.style.setProperty("--fs", settings.fs); }
-function applyDark(){
-  if(settings.dark) document.documentElement.setAttribute("data-mode","dark");
-  else document.documentElement.removeAttribute("data-mode");
-  var b=$("#darkToggle"); b.setAttribute("aria-pressed", settings.dark?"true":"false");
-  b.querySelector(".ic").textContent = settings.dark? "☀️":"🌙";
+function applyTheme(){
+  if(settings.theme==="dark") document.documentElement.setAttribute("data-theme","dark");
+  else document.documentElement.removeAttribute("data-theme");
+  var b=$("#themeToggle"); b.setAttribute("aria-pressed", settings.theme==="dark"?"true":"false"); b.querySelector(".ic").textContent= settings.theme==="dark"?"☀️":"🌙";
+  $('meta[name="theme-color"]').setAttribute("content", settings.theme==="dark"?"#06122A":"#005cff");
 }
-function applyVoice(){
-  var b=$("#voiceToggle"); b.setAttribute("aria-pressed", settings.voice?"true":"false");
-  b.querySelector(".ic").textContent = settings.voice? "🔊":"🔈";
-  if(!settings.voice) TTS.stop();
-}
+function applyVoice(){ var b=$("#voiceToggle"); b.setAttribute("aria-pressed", settings.voice?"true":"false"); b.querySelector(".ic").textContent= settings.voice?"🔊":"🔈"; if(!settings.voice) TTS.stop(); }
+function updateModeFlag(){ var live=AI.hasKey(); $("#modeDot").className="statusdot "+(live?"live":"demo"); $("#modeText").textContent= live?"מצב חי":"מצב הדגמה"; }
 
-$$(".fsgroup button").forEach(function(b){
-  b.addEventListener("click", function(){
-    settings.fs = parseFloat(b.getAttribute("data-fs")); persist(); applyFs();
-    $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
-  });
-});
-$("#darkToggle").addEventListener("click", function(){ settings.dark=!settings.dark; persist(); applyDark(); });
-$("#voiceToggle").addEventListener("click", function(){
-  settings.voice=!settings.voice; persist(); applyVoice();
-  toast(settings.voice? "הקראה מופעלת 🔊" : "הקראה כבויה 🔈");
-});
-$("#helperBtn").addEventListener("click", openHelperModal);
-$("#askVoiceBtn").addEventListener("click", startVoiceInput);
-$("#backHome").addEventListener("click", goHome);
+$$(".fsgroup button").forEach(function(b){ b.addEventListener("click", function(){ settings.fs=parseFloat(b.getAttribute("data-fs")); persist(); applyFs(); $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); }); }); });
+$("#themeToggle").addEventListener("click", function(){ settings.theme= settings.theme==="dark"?"light":"dark"; persist(); applyTheme(); });
+$("#voiceToggle").addEventListener("click", function(){ settings.voice=!settings.voice; persist(); applyVoice(); toast(settings.voice?"הקראה מופעלת 🔊":"הקראה כבויה 🔈"); });
+$("#menuBtn").addEventListener("click", openMenu);
+$("#modeFlag").addEventListener("click", openLive);
+$("#backHome1").addEventListener("click", goHome);
+$("#backHome2").addEventListener("click", goHome);
+$("#backHome3").addEventListener("click", goHome);
+$("#modeDo").addEventListener("click", function(){ $("#modeDo").setAttribute("aria-pressed","true"); $("#modeShow").setAttribute("aria-pressed","false"); renderDo(); });
+$("#modeShow").addEventListener("click", function(){ $("#modeShow").setAttribute("aria-pressed","true"); $("#modeDo").setAttribute("aria-pressed","false"); renderShow(); });
 
 /* =========================================================
    Boot
    ========================================================= */
 function boot(){
-  // brand
-  $("#brandName").textContent=BRAND.name;
-  $("#brandTag").textContent=BRAND.tag;
-  $("#ftName").textContent=BRAND.name;
-  document.title = BRAND.name + " — " + BRAND.tag;
-  // restore settings
-  // sync fs buttons
-  $$(".fsgroup button").forEach(function(x){
-    x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs ? "true":"false");
-  });
-  applyFs(); applyDark(); applyVoice();
+  $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs?"true":"false"); });
+  applyFs(); applyTheme(); applyVoice(); updateModeFlag();
   renderHome();
-  // honest TTS note if no Hebrew voice (after voices load)
-  setTimeout(function(){
-    if(TTS.ok && !TTS.hasHe){ /* leave silent default voice; instructions are always on screen */ }
-  }, 1200);
+  // Ezra speaks first (after a beat, once voices likely loaded)
+  setTimeout(function(){ if(settings.voice) TTS.speak("שלום, אני עֶזְרָא. ספרו לי מה צריך, ואני אעשה את זה בשבילכם."); }, 900);
 }
 boot();
 
