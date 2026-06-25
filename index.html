@@ -592,30 +592,61 @@ function getTask(id){ for(var i=0;i<TASKS.length;i++){ if(TASKS[i].id===id) retu
 var TTS = {
   ok:("speechSynthesis" in window), voice:null, isMale:false,
   init:function(){ if(!this.ok)return; var self=this;
+    // Rank Hebrew voices by naturalness, then by being male (Ezra). Higher = better.
+    var score=function(v){
+      var n=(v.name||"").toLowerCase(), s=0;
+      if(/natural|neural/.test(n)) s+=6;        // MS "…Online (Natural)" — most lifelike
+      if(/enhanced|premium/.test(n)) s+=4;      // Apple "Enhanced/Premium" voices
+      if(/siri/.test(n)) s+=3;
+      if(/google/.test(n)) s+=2;
+      if(/asaf|\bmale\b|guy|david|daniel|זכר|גבר/.test(n)) s+=5;  // male persona
+      if(/carmit|\bfemale\b|נקבה|woman/.test(n)) s-=1;
+      if(v.localService) s+=1;                  // offline = no network stutter
+      return s;
+    };
     var pick=function(){
-      var vs=window.speechSynthesis.getVoices()||[];
-      var he=vs.filter(function(v){ return /he|iw/i.test(v.lang); });
-      // Ezra is male — prefer an actual male Hebrew voice when the device has one
-      // (e.g. "Asaf" on Edge/Windows, some Google Android voices).
-      var male=he.filter(function(v){ return /asaf|\bmale\b|זכר|גבר|daniel|david|guy/i.test(v.name); });
-      // otherwise avoid the known female voice (Carmit) if anything else exists
-      var notFemale=he.filter(function(v){ return !/carmit|\bfemale\b|נקבה/i.test(v.name); });
-      self.voice = male[0] || notFemale[0] || he[0] || null;
-      self.isMale = !!male[0];
+      var he=(window.speechSynthesis.getVoices()||[]).filter(function(v){ return /he|iw/i.test(v.lang); });
+      he.sort(function(a,b){ return score(b)-score(a); });
+      self.voice = he[0]||null;
+      self.isMale = self.voice && /asaf|\bmale\b|guy|david|daniel|זכר|גבר/.test((self.voice.name||"").toLowerCase());
     };
     pick(); window.speechSynthesis.onvoiceschanged=pick;
   },
+  // strip emoji/symbols (so it doesn't read "smiling face") and turn dashes/line-breaks
+  // into gentle pauses, so the delivery flows like a person, not a screen reader.
+  warm:function(t){
+    return String(t)
+      .replace(/[←-⇿⌀-➿⬀-⯿️\u{1F000}-\u{1FAFF}]/gu, "")
+      .replace(/[„”"]/g, "")
+      .replace(/\s*[\r\n]+\s*/g, ". ")   // line break → a calm breath
+      .replace(/\s*[–—]\s*/g, ", ")       // dash → a short pause
+      .replace(/\s*…+\s*/g, ", ")
+      .replace(/\s{2,}/g, " ")
+      .replace(/\s+([.,!?])/g, "$1")
+      .trim();
+  },
+  // split into sentences so the engine takes a natural breath between them (no SSML on Web Speech)
+  parts:function(t){
+    var p=[], buf="";
+    for(var i=0;i<t.length;i++){ buf+=t[i];
+      if(/[.!?]/.test(t[i])){ while(i+1<t.length && t[i+1]===" ") i++; p.push(buf.trim()); buf=""; } }
+    if(buf.trim()) p.push(buf.trim());
+    var out=[]; p.forEach(function(s){ if(out.length && s.length<16) out[out.length-1]+=" "+s; else out.push(s); });
+    return out.length?out:[t];
+  },
   speak:function(t){ if(!this.ok||!settings.voice||!t)return; try{
     window.speechSynthesis.cancel();
-    var u=new SpeechSynthesisUtterance(t);
-    u.lang="he-IL";
-    u.rate=0.95;        // natural, gentle, unhurried
-    u.pitch=1;          // NATURAL pitch — no pitch-shifting (kills the "duck" distortion).
-                        // Prefer a real male voice (Android/Edge) when present; on Apple
-                        // (Hebrew = female Carmit only in-browser) read it natural & undistorted.
-                        // A truly natural male voice needs a paid TTS API — flagged for later.
-    if(this.voice) u.voice=this.voice;
-    window.speechSynthesis.speak(u);
+    var clean=this.warm(t); if(!clean) return;
+    var self=this;
+    this.parts(clean).forEach(function(sentence){
+      var u=new SpeechSynthesisUtterance(sentence);
+      u.lang="he-IL";
+      u.rate=0.86;     // calm, unhurried — warm and patient, never rushed or clipped
+      u.pitch=1.0;     // natural, undistorted
+      u.volume=1;
+      if(self.voice) u.voice=self.voice;
+      window.speechSynthesis.speak(u);   // queued → a gentle breath between sentences
+    });
   }catch(e){} },
   stop:function(){ if(this.ok){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
 };
