@@ -100,8 +100,11 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 
 /* ---------- Hero ---------- */
 .hero{ text-align:center; padding:30px 8px 6px; }
-.hero .avatar{ width:96px; height:96px; margin:0 auto 14px; border-radius:30px; background:linear-gradient(150deg,var(--brand),var(--brand-deep)); display:grid; place-items:center; box-shadow:var(--shadow-lg); }
-.hero .avatar svg{ width:60px; height:60px; }
+.hero .avatar{ width:132px; height:132px; margin:0 auto 14px; border-radius:50%; overflow:hidden; border:4px solid var(--surface); box-shadow:0 0 0 4px var(--brand), var(--shadow-lg); background:var(--brand-soft); position:relative; }
+.hero .avatar img{ width:100%; height:100%; object-fit:cover; object-position:50% 16%; display:block; }
+.hero .avatar::after{ content:""; position:absolute; inset-block-end:8px; inset-inline-end:10px; width:20px; height:20px; border-radius:50%; background:var(--ok); border:3px solid var(--surface); } /* gentle "here for you" presence dot */
+/* reusable small portrait of Ezra (chat, working states) */
+.ez-ava{ width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 14%; border:2px solid var(--brand); background:var(--brand-soft); flex:none; }
 .hero h1{ font-size:clamp(1.7rem,5vw,2.4rem); margin:.1em 0 .15em; line-height:1.15; color:var(--ink); }
 .hero h1 .accent{ color:var(--brand); }
 .hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .6em; max-width:34ch; }
@@ -234,7 +237,8 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 .msg{ max-width:88%; padding:14px 16px; border-radius:20px; font-size:1.08rem; line-height:1.55; box-shadow:var(--shadow); white-space:pre-wrap; }
 .msg.ez{ background:var(--surface); border:2px solid var(--line); align-self:flex-start; border-bottom-inline-start-radius:6px; }
 .msg.me{ background:var(--brand); color:var(--on-brand); align-self:flex-end; border-bottom-inline-end-radius:6px; }
-.msg.ez .who{ display:block; font-size:.78rem; font-weight:800; color:var(--brand); margin-bottom:4px; }
+.msg.ez .who{ display:flex; align-items:center; gap:8px; font-size:.92rem; font-weight:800; color:var(--brand); margin-bottom:8px; }
+.msg.ez .who .ez-ava{ width:34px; height:34px; }
 .msg .actbar{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
 .msg .miniact{ border:2px solid var(--brand); background:var(--brand-soft); color:var(--brand-ink); border-radius:12px; padding:8px 14px; font-weight:800; font-size:.95rem; min-height:48px; }
 .typing{ align-self:flex-start; display:inline-flex; gap:6px; padding:16px 18px; background:var(--surface); border:2px solid var(--line); border-radius:20px; }
@@ -313,17 +317,11 @@ footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margi
   <!-- ======= HOME ======= -->
   <section id="homeView" class="view active" aria-label="מסך הבית">
     <div class="hero">
-      <div class="avatar" aria-hidden="true">
-        <svg viewBox="110 -12 500 463" xmlns="http://www.w3.org/2000/svg"><g fill="#ffffff">
-          <circle cx="537.74" cy="60.02" r="60.02"/><circle cx="537.74" cy="219.46" r="60.02"/>
-          <circle cx="219.45" cy="219.47" r="60.02"/><circle cx="537.74" cy="378.9" r="60.02"/>
-          <path d="M318.87,125.23v94.22c0,54.92-44.52,99.44-99.44,99.44h-39.38c-33.15,0-60.02,26.87-60.02,60.02h0c0,33.15,26.87,60.02,60.02,60.02h43.4c118.99,0,215.45-96.46,215.45-215.45v-98.24c0-33.15-26.87-60.02-60.02-60.02h0c-33.15,0-60.02,26.87-60.02,60.02Z"/>
-        </g></svg>
-      </div>
-      <h1 id="greetTitle">שלום, אני <span class="accent">עֶזְרָא</span>.</h1>
-      <p class="lead" id="greetLead">אני לא רק מסביר — אני <b>עושה בשבילכם</b>. ספרו לי מה צריך, ואני אטפל בזה.</p>
+      <div class="avatar"><img src="ezra.jpg" alt="עֶזְרָא — העוזר שלכם" width="132" height="132"></div>
+      <h1 id="greetTitle">שלום וברכה, אני <span class="accent">עֶזְרָא</span> 🙂</h1>
+      <p class="lead" id="greetLead">נעים מאוד להכיר. אני כאן כדי לעזור לכם — ובשמחה גם <b>אעשה בשבילכם</b>. ספרו לי בבקשה מה תרצו, ואני אדאג לזה — בנחת ובלי שום לחץ.</p>
       <div class="askbar">
-        <input id="askInput" type="text" inputmode="text" placeholder="מה תרצו לעשות היום?" aria-label="כתבו מה תרצו לעשות" enterkeyhint="send">
+        <input id="askInput" type="text" inputmode="text" placeholder="ספרו לי בבקשה, במה אוכל לעזור?" aria-label="כתבו מה תרצו לעשות" enterkeyhint="send">
         <button class="iconbtn mic" id="askMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
         <button class="iconbtn send" id="askSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
       </div>
@@ -335,7 +333,7 @@ footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margi
 
     <div class="promise">
       <span class="ic" aria-hidden="true">🤲</span>
-      <p><b>ההבטחה שלי:</b> אתם עושים כמה שפחות, ולומדים כמה שיותר. בכל פעם אראה לכם בדיוק מה עשיתי — בלי קופסה שחורה. לעולם לא אבקש סיסמה או קוד.</p>
+      <p><b>ההבטחה שלי לכם:</b> אתם עושים כמה שפחות, ויודעים שאתם בידיים טובות. בכל פעם אראה לכם בדיוק מה עשיתי — בלי שום קופסה שחורה. ובבקשה, לעולם אל תמסרו לי סיסמה או קוד — אני באמת לא צריך אותם.</p>
     </div>
   </section>
 
@@ -483,13 +481,17 @@ function humanizeAIError(status, msg){
 }
 
 var EZRA_SYSTEM =
-"את/ה עֶזְרָא — עוזר/ת דיגיטלי/ת חם/ה וסבלני/ת למבוגרים בישראל. " +
-"דבר/י תמיד בעברית פשוטה, ברורה ומכבדת, במשפטים קצרים. אל תהיה/י מתנשא/ת. " +
-"העיקרון שלך: המשתמש עושה כמה שפחות ולומד כמה שיותר. אתה לא רק מסביר — אתה גם 'עושה בשבילו' (בתוך אב-טיפוס זה מודגם בלבד; לא מתבצעות פעולות אמיתיות, לא נשלח כסף ולא נשלחות הודעות). " +
-"כשמתאים, סכם בקצרה 'מה עשיתי בשבילך' וסיים בשורה מעודדת. " +
-"לעולם אל תבקש/י סיסמה, קוד, מספר כרטיס אשראי או פרטי בנק. " +
-"אם מישהו לוחץ לשלם/למסור קוד בדחיפות — עצור/י בעדינות והצע/י להתייעץ עם בן משפחה. " +
-"שמור/י על תשובות קצרות (2-5 משפטים) אלא אם מבקשים יותר.";
+"אתה עֶזְרָא — עוזר דיגיטלי, גבר חם, סבלני, אדיב ומכובד, שעוזר למבוגרים בישראל. " +
+"דבר תמיד על עצמך בלשון זכר ('אני שמח', 'אני כאן בשבילכם', 'בשמחה אעזור'). " +
+"פנה אל האנשים בכבוד ובנימוס רב — בעברית פשוטה, חמה וברורה, במשפטים קצרים ולא ממהרים. " +
+"השתמש בנדיבות במילים אדיבות: 'בבקשה', 'בשמחה', 'ברשותכם', 'תודה לכם', 'נעים מאוד'. " +
+"לעולם אל תהיה קצר, מצווה, מזלזל או מתנשא — דבר כמו אדם טוב-לב ומנומס שמדבר עם הורה מבוגר. " +
+"העיקרון שלך: שהאדם יעשה כמה שפחות, ויֵדע שהוא בידיים טובות. אתה לא רק מסביר — אתה גם 'עושה בשבילו' " +
+"(באב-טיפוס זה מודגם בלבד; לא מתבצעות פעולות אמיתיות, לא נשלח כסף ולא נשלחות הודעות). " +
+"כשמתאים, סכם בעדינות 'מה עשיתי בשבילכם' וסיים בשורה חמה ומעודדת. " +
+"לעולם אל תבקש סיסמה, קוד, מספר כרטיס אשראי או פרטי בנק. " +
+"אם מישהו לוחץ לשלם או למסור קוד בדחיפות — עצור בעדינות והצע באדיבות להתייעץ עם בן משפחה. " +
+"שמור על תשובות קצרות, חמות ומנומסות (2-5 משפטים) אלא אם מבקשים יותר.";
 
 /* =========================================================
    TASK CONTENT — agentic + show-me, in plain Hebrew
@@ -587,9 +589,32 @@ function getTask(id){ for(var i=0;i<TASKS.length;i++){ if(TASKS[i].id===id) retu
    TTS — Hebrew read-aloud, honest fallback
    ========================================================= */
 var TTS = {
-  ok:("speechSynthesis" in window), heVoice:null,
-  init:function(){ if(!this.ok)return; var self=this; var pick=function(){ var vs=window.speechSynthesis.getVoices()||[]; self.heVoice=vs.filter(function(v){return /he|iw/i.test(v.lang);})[0]||null; }; pick(); window.speechSynthesis.onvoiceschanged=pick; },
-  speak:function(t){ if(!this.ok||!settings.voice||!t)return; try{ window.speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t); u.lang="he-IL"; u.rate=.92; if(this.heVoice)u.voice=this.heVoice; window.speechSynthesis.speak(u); }catch(e){} },
+  ok:("speechSynthesis" in window), voice:null, isMale:false,
+  init:function(){ if(!this.ok)return; var self=this;
+    var pick=function(){
+      var vs=window.speechSynthesis.getVoices()||[];
+      var he=vs.filter(function(v){ return /he|iw/i.test(v.lang); });
+      // Ezra is male — prefer an actual male Hebrew voice when the device has one
+      // (e.g. "Asaf" on Edge/Windows, some Google Android voices).
+      var male=he.filter(function(v){ return /asaf|\bmale\b|זכר|גבר|daniel|david|guy/i.test(v.name); });
+      // otherwise avoid the known female voice (Carmit) if anything else exists
+      var notFemale=he.filter(function(v){ return !/carmit|\bfemale\b|נקבה/i.test(v.name); });
+      self.voice = male[0] || notFemale[0] || he[0] || null;
+      self.isMale = !!male[0];
+    };
+    pick(); window.speechSynthesis.onvoiceschanged=pick;
+  },
+  speak:function(t){ if(!this.ok||!settings.voice||!t)return; try{
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t);
+    u.lang="he-IL";
+    u.rate=0.9;                              // warm, unhurried — never clipped
+    // a real male voice reads naturally; a female-only fallback is pitched down
+    // toward a lower, warmer register (the best the browser can do — see paid-TTS note)
+    u.pitch=this.isMale ? 0.96 : 0.78;
+    if(this.voice) u.voice=this.voice;
+    window.speechSynthesis.speak(u);
+  }catch(e){} },
   stop:function(){ if(this.ok){ try{ window.speechSynthesis.cancel(); }catch(e){} } }
 };
 TTS.init();
@@ -602,8 +627,8 @@ var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 function listen(onText, hintEl){
   if(!SR){ if(hintEl) hintEl.textContent="הדפדפן הזה לא תומך בהקשבה. אפשר פשוט לכתוב 👆"; return; }
   var rec=new SR(); rec.lang="he-IL"; rec.interimResults=false; rec.maxAlternatives=1;
-  if(hintEl) hintEl.textContent="מקשיב… דברו עכשיו 🎧";
-  TTS.speak("אני מקשיב");
+  if(hintEl) hintEl.textContent="אני מקשיב לכם — דברו בבקשה 🎧";
+  TTS.speak("אני מקשיב לכם, בבקשה.");
   rec.onresult=function(ev){ var s=""; for(var i=0;i<ev.results.length;i++) s+=ev.results[i][0].transcript+" "; s=s.trim(); if(hintEl) hintEl.textContent='„'+s+'”'; onText(s); };
   rec.onerror=function(ev){ if(hintEl) hintEl.textContent=(ev&&ev.error==="not-allowed")?"הגישה למיקרופון חסומה. אפשר לכתוב 👆":"לא שמעתי טוב. נסו שוב או כתבו 👆"; };
   try{ rec.start(); }catch(e){ if(hintEl) hintEl.textContent="לא הצלחתי להפעיל מיקרופון. אפשר לכתוב 👆"; }
@@ -659,23 +684,23 @@ function renderModeIntro(){
   var t=cur.task, host=$("#taskHost"); host.innerHTML="";
   var p=el("div","panel");
   p.innerHTML='<h2>'+esc(t.title)+'</h2><div class="body">'+
-    'אני אטפל בזה בשבילכם, צעד אחר צעד. לפני כל פעולה שאי-אפשר לבטל (שליחה, תשלום) — אעצור ואבקש את אישורכם.</div>';
+    'בשמחה אטפל בזה בשבילכם, צעד אחר צעד ובנחת. לפני כל פעולה שאי-אפשר לבטל — כמו שליחה או תשלום — אעצור תמיד ואבקש את אישורכם, כי הבחירה היא תמיד שלכם.</div>';
   var acts=el("div","actions");
-  var go=el("button","btn primary"); go.innerHTML='<span aria-hidden="true">🤲</span> '+(t.sensitive?"קדימה — בכפוף לאישורי":"קדימה, תעשה את זה");
+  var go=el("button","btn primary"); go.innerHTML='<span aria-hidden="true">🤲</span> '+(t.sensitive?"בבקשה, ובכפוף לאישור שלי":"כן בבקשה — עשֵׂה זאת בשבילי");
   go.addEventListener("click", runAgent);
   var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
-  listen2.addEventListener("click", function(){ TTS.speak(t.title+". אני אטפל בזה בשבילכם, צעד אחר צעד."); });
+  listen2.addEventListener("click", function(){ TTS.speak(t.title+". בשמחה אטפל בזה בשבילכם, צעד אחר צעד ובנחת."); });
   acts.appendChild(go); acts.appendChild(listen2);
   p.appendChild(acts);
   host.appendChild(p);
-  if(settings.voice) TTS.speak(t.title+". אני אטפל בזה בשבילכם.");
+  if(settings.voice) TTS.speak(t.title+". בשמחה אטפל בזה בשבילכם, בנחת.");
 }
 function renderDo(){ cur.mode="do"; renderModeIntro(); }
 
 async function runAgent(){
   var t=cur.task, host=$("#taskHost"); host.innerHTML="";
   var p=el("div","panel");
-  p.innerHTML='<h2><span aria-hidden="true">🤲</span> עֶזְרָא עובד בשבילכם…</h2>';
+  p.innerHTML='<h2 style="display:flex;align-items:center;gap:10px"><img class="ez-ava" src="ezra.jpg" alt=""><span>ברשותכם, אני מטפל בזה עכשיו…</span></h2>';
   var work=el("div","agentwork");
   t.agent.forEach(function(line,i){
     var row=el("div","line"); row.id="aw"+i;
@@ -683,7 +708,7 @@ async function runAgent(){
     work.appendChild(row);
   });
   p.appendChild(work); host.appendChild(p);
-  if(settings.voice) TTS.speak("אני עובד על זה בשבילכם");
+  if(settings.voice) TTS.speak("ברשותכם, אני מטפל בזה עכשיו. רק רגע אחד, בבקשה.");
   // animate
   for(var i=0;i<t.agent.length;i++){
     var row=$("#aw"+i); row.classList.add("active");
@@ -714,7 +739,7 @@ function renderResult(){
   var confirmBtn=el("button","btn primary"); confirmBtn.innerHTML='<span aria-hidden="true">✓</span> '+esc(r.tryLabel);
   confirmBtn.addEventListener("click", function(){ confirmAction(t); });
   var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי';
-  listen2.addEventListener("click", function(){ TTS.speak("עשיתי בשבילכם. "+r.sum+". "+r.did.join(". ")); });
+  listen2.addEventListener("click", function(){ TTS.speak("בבקשה, סיימתי עבורכם. "+r.sum+". "+r.did.join(". ")); });
   acts.appendChild(confirmBtn); acts.appendChild(listen2);
   p.appendChild(acts);
   // helper row
@@ -726,14 +751,14 @@ function renderResult(){
   hr.appendChild(ask); hr.appendChild(home);
   p.appendChild(hr);
   host.appendChild(p);
-  if(settings.voice) TTS.speak("עשיתי בשבילכם. "+r.sum);
+  if(settings.voice) TTS.speak("בבקשה, סיימתי עבורכם. "+r.sum);
 }
 
 /* consent gate before any irreversible (simulated) action */
 function confirmAction(t){
   var sensitive = t.sensitive || (t.result && t.result.scam);
   var needFamily = settings.helper && t.id==="bill"; // co-approval demo for payments
-  modal("רגע אחד — אישור אחרון", "modal-confirm",
+  modal("רק רגע אחד, ברשותכם", "modal-confirm",
     '<p>אני עומד '+ (t.id==="bill"?"להמשיך לתשלום מאובטח":"לבצע את הפעולה") +' בשבילכם. '+
     (sensitive? 'זו פעולה שאי-אפשר לבטל, אז חשוב שתאשרו במודע.':'') +'</p>'+
     (needFamily? '<div class="chip">👪 '+esc(settings.helper.name)+' יקבל/תקבל הודעה על הפעולה (הדגמה)</div>':'')+
@@ -746,9 +771,9 @@ function confirmAction(t){
                     t.id==="doctor" ? "אישרתם — התור נקבע (הדגמה)" :
                     "אישרתם — "+t.title;
           logAction(msg);
-          toast("בוצע ✓ — רשמתי לכם ביומן הפעולות");
+          toast("מצוין, בוצע ✓ — רשמתי לכם הכול ביומן הפעולות");
           if(needFamily) logAction("נשלחה הודעה ל"+settings.helper.name+" על הפעולה (הדגמה)");
-          if(settings.voice) TTS.speak("בוצע. אפשר לראות בדיוק מה עשיתי ביומן הפעולות.");
+          if(settings.voice) TTS.speak("מצוין, בוצע. אפשר תמיד לראות בדיוק מה עשיתי, ביומן הפעולות. תודה לכם.");
         } },
       { label:"לא עכשיו", cls:"ghost", act:closeModal } ]
   );
@@ -785,20 +810,20 @@ function renderStep(){
 function finishShow(){
   var host=$("#taskHost"); host.innerHTML="";
   var p=el("div","panel result");
-  p.innerHTML='<div class="crown" aria-hidden="true">🎉</div><h2>כל הכבוד! סיימתם.</h2><p class="sum">עברתם את כל הצעדים יפה מאוד. אני תמיד כאן — בפעם הבאה אפשר גם פשוט לתת לי לעשות את זה בשבילכם.</p>';
+  p.innerHTML='<div class="crown" aria-hidden="true">🎉</div><h2>כל הכבוד לכם! סיימתם יפה.</h2><p class="sum">עברתם את כל הצעדים יפה מאוד, וזה באמת מרשים. אני תמיד כאן בשבילכם — ובפעם הבאה, אם תרצו, תוכלו פשוט לתת לי לעשות את זה עבורכם.</p>';
   var acts=el("div","actions");
   var again=el("button","btn ghost"); again.textContent="לעבור שוב"; again.addEventListener("click",function(){ cur.step=0; renderStep(); });
   var doit=el("button","btn primary"); doit.innerHTML='<span aria-hidden="true">🤲</span> שאעשה בשבילכם'; doit.addEventListener("click", function(){ $("#modeDo").setAttribute("aria-pressed","true"); $("#modeShow").setAttribute("aria-pressed","false"); renderDo(); });
   acts.appendChild(doit); acts.appendChild(again);
   p.appendChild(acts); host.appendChild(p);
-  if(settings.voice) TTS.speak("כל הכבוד, סיימתם!");
+  if(settings.voice) TTS.speak("כל הכבוד לכם, סיימתם יפה מאוד!");
 }
 
 /* =========================================================
    CAMERA — capture, ask, identify+act (live or honest demo)
    ========================================================= */
 var camShots=[]; // {dataUrl, media_type, b64}
-function openCamera(){ camShots=[]; $("#camResult").innerHTML=""; $$("#camQuick .qchip").forEach(function(c){c.setAttribute("aria-pressed","false");}); renderShots(); showView("camView"); if(settings.voice) TTS.speak("צלמו פריט, ואשאל מה זה. צלמו שניים — ואחבר ביניהם בשבילכם."); }
+function openCamera(){ camShots=[]; $("#camResult").innerHTML=""; $$("#camQuick .qchip").forEach(function(c){c.setAttribute("aria-pressed","false");}); renderShots(); showView("camView"); if(settings.voice) TTS.speak("בבקשה, צלמו פריט ואשמח לומר לכם מה זה. ואם תצלמו שניים — אסביר ואחבר ביניהם בשבילכם, בנחת."); }
 function renderShots(){
   var box=$("#shots"); box.innerHTML="";
   camShots.forEach(function(s,i){
@@ -836,7 +861,7 @@ async function camAsk(){
   var q = qc ? qc.getAttribute("data-q") : (camShots.length>=2? "איך מחברים את זה לזה?" : "מה זה? תסביר לי בפשטות.");
   var out=$("#camResult");
   out.innerHTML='<div class="panel"><div class="typing" aria-label="עֶזְרָא מסתכל"><span></span><span></span><span></span></div><p class="body" style="margin-top:10px">עֶזְרָא מסתכל על התמונה…</p></div>';
-  if(settings.voice) TTS.speak("רגע, אני מסתכל");
+  if(settings.voice) TTS.speak("רק רגע אחד בבקשה, אני מסתכל.");
   window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 
   var text=null, demo=false, liveErr=null;
@@ -895,7 +920,7 @@ var chatHistory=[]; // {role, content}
 function openChat(seed){
   showView("chatView");
   if(chatHistory.length===0){
-    addChat("ez","שלום, אני עֶזְרָא 🙂\nספרו לי מה צריך — ואני אטפל בזה בשבילכם. אפשר לכתוב או לדבר אליי.");
+    addChat("ez","שלום וברכה, אני עֶזְרָא 🙂\nאני כאן בשבילכם. ספרו לי בבקשה במה אוכל לעזור — ובשמחה אטפל בזה. אפשר לכתוב לי, או פשוט לדבר אליי, איך שנוח לכם.");
   }
   if(seed){ setTimeout(function(){ sendChat(seed); }, 250); }
   setTimeout(function(){ $("#chatInput").focus(); }, 300);
@@ -903,7 +928,7 @@ function openChat(seed){
 function addChat(who, text, acts){
   var log=$("#chatLog");
   var m=el("div","msg "+who);
-  if(who==="ez"){ m.innerHTML='<span class="who">עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
+  if(who==="ez"){ m.innerHTML='<span class="who"><img class="ez-ava" src="ezra.jpg" alt=""> עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
   else { m.textContent=text; }
   if(acts && acts.length){
     var bar=el("div","actbar");
@@ -948,11 +973,11 @@ function chatDemoReply(text){
   var tid=matchTask(text);
   if(tid && tid!=="__cam" && getTask(tid)){
     var t=getTask(tid);
-    return "בשמחה! זה משהו שאני יכול לעשות בשבילכם — „"+t.title+"”.\nאני אטפל בכל הצעדים, ולפני כל דבר שאי-אפשר לבטל אבקש את אישורכם. רוצים שאתחיל?";
+    return "בשמחה רבה! זה משהו שאני שמח לעשות בשבילכם — „"+t.title+"”.\nאטפל בכל הצעדים בנחת, ולפני כל דבר שאי-אפשר לבטל אבקש את רשותכם. תרצו שאתחיל, בבקשה?";
   }
-  if(/שלום|היי|בוקר|ערב|מה נשמע/.test(text)) return "שלום וברכה 🙂 איך אני יכול לעזור לכם היום? אפשר לבקש ממני לשלוח הודעה, לקבוע תור, לבדוק חשבון, או פשוט לשאול אותי כל דבר.";
-  if(/תודה/.test(text)) return "על לא דבר, בכיף תמיד 🙂 אני כאן בשבילכם.";
-  return "הבנתי. אני כאן כדי לעשות בשבילכם — אפשר לבקש ממני לשלוח הודעה בוואטסאפ, לקבוע תור לרופא, לבדוק חשבון, או לצלם פריט ולשאול „מה זה”. מה מהם נשמע מתאים?";
+  if(/שלום|היי|בוקר|ערב|מה נשמע|מה שלומ/.test(text)) return "שלום וברכה לכם 🙂 נעים מאוד. במה אוכל לעזור לכם היום? אפשר לבקש ממני בבקשה לשלוח הודעה, לקבוע תור, לבדוק חשבון — או פשוט לשאול אותי כל דבר שתרצו.";
+  if(/תודה/.test(text)) return "בשמחה רבה, תמיד 🙂 אני כאן בשבילכם, מתי שרק תצטרכו.";
+  return "הבנתי, תודה לכם. אני כאן כדי לעזור ולעשות בשבילכם — אפשר לבקש ממני בבקשה לשלוח הודעה בוואטסאפ, לקבוע תור לרופא, לבדוק חשבון, או לצלם פריט ולשאול „מה זה”. מה מכל אלה נשמע לכם מתאים?";
 }
 
 /* =========================================================
@@ -1102,7 +1127,7 @@ function boot(){
   applyFs(); applyTheme(); applyVoice(); updateModeFlag();
   renderHome();
   // Ezra speaks first (after a beat, once voices likely loaded)
-  setTimeout(function(){ if(settings.voice) TTS.speak("שלום, אני עֶזְרָא. ספרו לי מה צריך, ואני אעשה את זה בשבילכם."); }, 900);
+  setTimeout(function(){ if(settings.voice) TTS.speak("שלום וברכה, אני עֶזְרָא. נעים מאוד להכיר אתכם. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם, בנחת ובלי שום מיהור."); }, 900);
 }
 boot();
 
