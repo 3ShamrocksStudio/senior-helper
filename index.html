@@ -439,45 +439,46 @@ function fmtTime(ts){
 }
 
 /* =========================================================
-   LIVE AI  (honest: real only with the user's own key)
-   Browser-direct Anthropic call. Without a key → labeled demo.
+   LIVE AI — Google Gemini (FREE tier, multimodal: chat + vision).
+   Browser-direct call with the user's OWN free key (kept only in
+   localStorage, never in the repo). No key → clean labeled demo.
+   Zero billing: free AI Studio tier. Get a key: aistudio.google.com
    ========================================================= */
 var AI = {
-  model:"claude-opus-4-8",
+  model:"gemini-2.0-flash",
   hasKey:function(){ return !!(settings.key && settings.key.trim()); },
-  /* messages: [{role, content}], system: string. images: optional [{media_type,data}] folded into first user msg by caller */
-  call: async function(messages, system, maxTokens){
+  endpoint:function(){ return "https://generativelanguage.googleapis.com/v1beta/models/"+this.model+":generateContent?key="+encodeURIComponent(settings.key.trim()); },
+  /* low-level: Gemini "contents" array → text */
+  raw: async function(contents, system, maxTokens){
     if(!this.hasKey()) throw new Error("nokey");
-    var res = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "content-type":"application/json",
-        "x-api-key":settings.key.trim(),
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({
-        model:this.model,
-        max_tokens:maxTokens||1024,
-        system:system,
-        messages:messages
-      })
-    });
-    if(!res.ok){
-      var t=""; try{ t=(await res.json()).error.message; }catch(e){}
-      throw new Error(humanizeAIError(res.status, t));
-    }
+    var body={ contents:contents, generationConfig:{ maxOutputTokens:maxTokens||800, temperature:0.7 } };
+    if(system) body.system_instruction={ parts:[{ text:system }] };
+    var res = await fetch(this.endpoint(),{ method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(body) });
+    if(!res.ok){ var t=""; try{ t=(await res.json()).error.message; }catch(e){} throw new Error(humanizeAIError(res.status, t)); }
     var data = await res.json();
-    var out=""; (data.content||[]).forEach(function(b){ if(b.type==="text") out+=b.text; });
+    var c=(data.candidates||[])[0];
+    if(!c || !c.content){ throw new Error(humanizeAIError(0,(data.promptFeedback&&data.promptFeedback.blockReason)||"empty")); }
+    var out=""; (c.content.parts||[]).forEach(function(p){ if(p.text) out+=p.text; });
     return out.trim();
+  },
+  /* chat: [{role:'user'|'assistant', content}] → Gemini (user/model) */
+  chat: function(messages, system, maxTokens){
+    var contents=messages.map(function(m){ return { role:(m.role==="assistant"?"model":"user"), parts:[{ text:m.content }] }; });
+    return this.raw(contents, system, maxTokens);
+  },
+  /* vision: images [{media_type,b64}] + prompt text in one user turn */
+  vision: function(images, prompt, system, maxTokens){
+    var parts=[]; images.forEach(function(im){ parts.push({ inline_data:{ mime_type:im.media_type, data:im.b64 } }); }); parts.push({ text:prompt });
+    return this.raw([{ role:"user", parts:parts }], system, maxTokens);
   }
 };
 
 function humanizeAIError(status, msg){
   msg = (msg||"").toLowerCase();
-  if(/credit balance|too low|billing/.test(msg)) return "אין כרגע יתרת קרדיט בחשבון ה-AI";
-  if(status===401 || /authentication|invalid x-api-key|api key/.test(msg)) return "המפתח אינו תקין";
-  if(status===429 || /rate/.test(msg)) return "יש כרגע עומס — נסו שוב בעוד רגע";
+  if(status===400 || /api key not valid|api_key_invalid|invalid api key|api key/.test(msg)) return "המפתח אינו תקין — אפשר להזין מחדש בהגדרות";
+  if(status===429 || /quota|rate|exhausted|resource_exhausted/.test(msg)) return "הגענו למכסת השימוש החינמית להיום — נסו שוב בעוד רגע";
+  if(/safety|blocked|recitation/.test(msg)) return "לא הצלחתי להשיב על זה";
+  if(status===403 || /permission|forbidden/.test(msg)) return "אין הרשאה למפתח הזה";
   return "החיבור ל-AI נכשל זמנית";
 }
 
@@ -900,14 +901,12 @@ async function camAsk(){
   var text=null, demo=false, liveErr=null;
   if(AI.hasKey()){
     try{
-      var content=[];
-      camShots.forEach(function(s){ content.push({ type:"image", source:{ type:"base64", media_type:s.media_type, data:s.b64 } }); });
-      content.push({ type:"text", text:
+      var prompt =
         "המשתמש הוא אדם מבוגר שצילם "+(camShots.length>=2?"שני פריטים":"פריט")+" ושואל: \""+q+"\". "+
         "ענה בעברית פשוטה וחמה. (1) זהה בקצרה מה רואים. (2) הסבר בפשטות מה עושים, בצעדים קצרים וברורים. "+
         (camShots.length>=2? "(3) הסבר איך לחבר אותם. ":"")+
-        "אם זה דורש פעולה — נסח בסוף שורה אחת 'מה אעשה בשבילך' בנימה אגבית. שמור על 4-7 משפטים." });
-      text = await AI.call([{ role:"user", content:content }], EZRA_SYSTEM, 700);
+        "אם זה דורש פעולה — נסח בסוף שורה אחת 'מה אעשה בשבילך' בנימה אגבית. שמור על 4-7 משפטים.";
+      text = await AI.vision(camShots.map(function(s){ return { media_type:s.media_type, b64:s.b64 }; }), prompt, EZRA_SYSTEM, 700);
     }catch(err){ demo=true; liveErr=String(err.message||err); }
   } else { demo=true; }
 
@@ -983,7 +982,7 @@ async function sendChat(text){
   typingOn();
   var reply=null, demo=false, liveErr=null;
   if(AI.hasKey()){
-    try{ reply = await AI.call(chatHistory.slice(-10), EZRA_SYSTEM, 600); }
+    try{ reply = await AI.chat(chatHistory.slice(-10), EZRA_SYSTEM, 600); }
     catch(e){ demo=true; liveErr=String(e.message||e); }
   } else demo=true;
   if(demo){ reply = chatDemoReply(text); }
@@ -1081,11 +1080,11 @@ function openLive(){
   var live=AI.hasKey();
   modal("מצב AI חי", "modal-live",
     '<p>עֶזְרָא יכול לעבוד בשני מצבים:</p>'+
-    '<p><span class="statusdot demo" aria-hidden="true"></span> <b>הדגמה</b> — תשובות לדוגמה, בלי חיבור לאינטרנט. תמיד עובד.</p>'+
-    '<p><span class="statusdot live" aria-hidden="true"></span> <b>חי</b> — עֶזְרָא באמת מבין את התמונות שלכם ומשוחח חופשי, באמצעות מפתח Anthropic <b>משלכם</b>.</p>'+
-    '<label for="apiKey">מפתח Anthropic (נשמר רק במכשיר הזה)</label>'+
-    '<input id="apiKey" type="password" placeholder="sk-ant-…" value="'+esc(settings.key||"")+'" autocomplete="off">'+
-    '<p style="font-size:.9rem">המפתח נשמר מקומית בלבד ולא נשלח לאף אחד מלבד Anthropic. בלי מפתח — נשארים במצב הדגמה (וזה בסדר גמור).</p>',
+    '<p><span class="statusdot demo" aria-hidden="true"></span> <b>הדגמה</b> — תשובות לדוגמה, בלי חיבור. תמיד עובד.</p>'+
+    '<p><span class="statusdot live" aria-hidden="true"></span> <b>חי</b> — עֶזְרָא באמת מבין את התמונות שלכם ומשוחח חופשי, באמצעות <b>Google Gemini</b> (חינמי לגמרי).</p>'+
+    '<label for="apiKey">מפתח Gemini חינמי (נשמר רק במכשיר הזה)</label>'+
+    '<input id="apiKey" type="password" placeholder="AIza…" value="'+esc(settings.key||"")+'" autocomplete="off">'+
+    '<p style="font-size:.9rem">מפתח חינמי משיגים תוך דקה ב-<b>aistudio.google.com</b> (כפתור „Get API key”). אין כל חיוב. המפתח נשמר מקומית בלבד ונשלח רק ל-Google. בלי מפתח — נשארים במצב הדגמה, וזה בסדר גמור.</p>',
     [ { label:"שמירה", cls:"primary", act:function(){ settings.key=$("#apiKey").value.trim(); persist(); updateModeFlag(); closeModal(); toast(AI.hasKey()?"מצב חי הופעל ✓":"חזרנו למצב הדגמה"); } },
       (live? { label:"כיבוי מצב חי", cls:"ghost", act:function(){ settings.key=""; persist(); updateModeFlag(); closeModal(); toast("מצב חי כובה"); } } : { label:"ביטול", cls:"ghost", act:closeModal }) ]
   );
