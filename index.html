@@ -102,10 +102,10 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 /* ---------- Hero ---------- */
 .hero{ text-align:center; padding:30px 8px 6px; }
 .hero .avatar{ width:132px; height:132px; margin:0 auto 14px; border-radius:50%; overflow:hidden; border:4px solid var(--surface); box-shadow:0 0 0 4px var(--brand), var(--shadow-lg); background:var(--brand-soft); position:relative; }
-.hero .avatar img{ width:100%; height:100%; object-fit:cover; object-position:50% 16%; display:block; }
+.hero .avatar img{ width:100%; height:100%; object-fit:cover; object-position:50% 50%; display:block; }
 .hero .avatar::after{ content:""; position:absolute; inset-block-end:8px; inset-inline-end:10px; width:20px; height:20px; border-radius:50%; background:var(--ok); border:3px solid var(--surface); } /* gentle "here for you" presence dot */
 /* reusable small portrait of Ezra (chat, working states) */
-.ez-ava{ width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 14%; border:2px solid var(--brand); background:var(--brand-soft); flex:none; }
+.ez-ava{ width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 50%; border:2px solid var(--brand); background:var(--brand-soft); flex:none; }
 .hero h1{ font-size:clamp(1.7rem,5vw,2.4rem); margin:.1em 0 .15em; line-height:1.15; color:var(--ink); }
 .hero h1 .accent{ color:var(--brand); }
 .hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .6em; max-width:34ch; }
@@ -258,8 +258,6 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 .modal .row{ display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; }
 .modal .row .btn{ flex:1 1 auto; }
 .chip{ display:inline-flex; align-items:center; gap:10px; background:var(--brand-soft); border-radius:99px; padding:8px 16px; font-weight:800; color:var(--brand-ink); margin-top:10px; }
-.statusdot{ display:inline-block; width:11px; height:11px; border-radius:50%; }
-.statusdot.live{ background:var(--ok); } .statusdot.demo{ background:var(--warn); }
 
 /* audit log list */
 .auditlist{ list-style:none; margin:14px 0 0; padding:0; }
@@ -273,7 +271,6 @@ footer.credit .badge{ display:inline-block; background:#FFFFFF; border:1px solid
 footer.credit .badge img{ display:block; height:28px; width:auto; }
 footer.credit .cr{ display:block; margin-top:12px; font-size:.92rem; color:var(--ink-soft); }
 footer.credit .cr b{ color:var(--ink); }
-footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margin-top:10px; font-size:.85rem; font-weight:800; color:var(--ink-soft); border:2px solid var(--line); border-radius:99px; padding:6px 14px; background:var(--surface); }
 
 /* toast */
 .toast{ position:fixed; inset-block-end:24px; inset-inline:0; margin:auto; width:max-content; max-width:90%; background:var(--ink); color:var(--bg); padding:15px 28px; border-radius:var(--pill); font-size:1.05rem; font-weight:800; z-index:60; box-shadow:var(--shadow-lg); opacity:0; transform:translateY(20px); transition:opacity .25s, transform .25s; pointer-events:none; text-align:center; }
@@ -318,7 +315,7 @@ footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margi
   <!-- ======= HOME ======= -->
   <section id="homeView" class="view active" aria-label="מסך הבית">
     <div class="hero">
-      <div class="avatar"><img src="ezra.jpg" alt="עֶזְרָא — העוזר שלכם" width="132" height="132"></div>
+      <div class="avatar"><img src="icon.svg" alt="עֶזְרָא — העוזר שלכם" width="132" height="132"></div>
       <h1 id="greetTitle">שלום וברכה, אני <span class="accent">עֶזְרָא</span> 🙂</h1>
       <p class="lead" id="greetLead">נעים מאוד להכיר. אני כאן כדי לעזור לכם — ובשמחה גם <b>אעשה בשבילכם</b>. ספרו לי בבקשה מה תרצו, ואני אדאג לזה — בנחת ובלי שום לחץ.</p>
       <div class="askbar">
@@ -397,7 +394,6 @@ footer.credit .modeflag{ display:inline-flex; align-items:center; gap:7px; margi
 <footer class="credit">
   <span class="badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></span>
   <span class="cr"><b>עֶזְרָא</b> · אב-טיפוס · © 2026 <b>3Shamrocks Studio</b> · כל הזכויות שמורות</span>
-  <button class="modeflag" id="modeFlag" aria-label="מצב ה-AI"><span class="statusdot demo" id="modeDot"></span><span id="modeText">מצב הדגמה</span></button>
 </footer>
 
 <div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal" id="modalCard"></div></div>
@@ -424,7 +420,7 @@ var store = {
   load:function(){ try{ return JSON.parse(localStorage.getItem("ezra.v2")||"{}"); }catch(e){ return {}; } },
   save:function(o){ try{ localStorage.setItem("ezra.v2", JSON.stringify(o)); }catch(e){} }
 };
-var settings = Object.assign({ fs:1, theme:"light", voice:true, helper:null, audit:[], key:"" }, store.load());
+var settings = Object.assign({ fs:1, theme:"light", voice:true, helper:null, audit:[] }, store.load());
 function persist(){ store.save(settings); }
 
 /* audit log — plain-Hebrew record of everything Ezra "did" */
@@ -439,47 +435,79 @@ function fmtTime(ts){
 }
 
 /* =========================================================
-   LIVE AI — Google Gemini (FREE tier, multimodal: chat + vision).
-   Browser-direct call with the user's OWN free key (kept only in
-   localStorage, never in the repo). No key → clean labeled demo.
-   Zero billing: free AI Studio tier. Get a key: aistudio.google.com
+   LIVE AI — routed through a SERVER-SIDE proxy that holds the key.
+   The user NEVER sees or enters anything. If no proxy is configured
+   (or it fails), Ezra answers with the built-in on-device brain —
+   so the app is genuinely useful the moment it opens, with zero setup.
+
+   ONE-TIME DAVE SETUP (behind the scenes, users never touch this):
+   deploy cloudflare-worker.js as a free Cloudflare Worker with your
+   free Gemini key as the GEMINI_KEY secret, then paste the Worker URL
+   below. See PROXY-SETUP.md. Leave "" to run on the on-device brain.
    ========================================================= */
+var PROXY_URL = "";   /* ← Dave: paste your Cloudflare Worker URL here (one time). */
+
 var AI = {
-  model:"gemini-2.0-flash",
-  hasKey:function(){ return !!(settings.key && settings.key.trim()); },
-  endpoint:function(){ return "https://generativelanguage.googleapis.com/v1beta/models/"+this.model+":generateContent?key="+encodeURIComponent(settings.key.trim()); },
-  /* low-level: Gemini "contents" array → text */
-  raw: async function(contents, system, maxTokens){
-    if(!this.hasKey()) throw new Error("nokey");
-    var body={ contents:contents, generationConfig:{ maxOutputTokens:maxTokens||800, temperature:0.7 } };
-    if(system) body.system_instruction={ parts:[{ text:system }] };
-    var res = await fetch(this.endpoint(),{ method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(body) });
-    if(!res.ok){ var t=""; try{ t=(await res.json()).error.message; }catch(e){} throw new Error(humanizeAIError(res.status, t)); }
+  enabled:function(){ return /^https?:\/\//.test(PROXY_URL||""); },
+  raw: async function(payload){
+    if(!this.enabled()) throw new Error("noproxy");
+    var res = await fetch(PROXY_URL,{ method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(payload) });
+    if(!res.ok) throw new Error("proxy "+res.status);
     var data = await res.json();
     var c=(data.candidates||[])[0];
-    if(!c || !c.content){ throw new Error(humanizeAIError(0,(data.promptFeedback&&data.promptFeedback.blockReason)||"empty")); }
+    if(!c || !c.content) throw new Error("empty");
     var out=""; (c.content.parts||[]).forEach(function(p){ if(p.text) out+=p.text; });
-    return out.trim();
+    out=out.trim(); if(!out) throw new Error("empty"); return out;
   },
-  /* chat: [{role:'user'|'assistant', content}] → Gemini (user/model) */
-  chat: function(messages, system, maxTokens){
+  chat: function(messages, system){
     var contents=messages.map(function(m){ return { role:(m.role==="assistant"?"model":"user"), parts:[{ text:m.content }] }; });
-    return this.raw(contents, system, maxTokens);
+    return this.raw({ contents:contents, system_instruction:{ parts:[{ text:system }] }, generationConfig:{ maxOutputTokens:600, temperature:0.7 } });
   },
-  /* vision: images [{media_type,b64}] + prompt text in one user turn */
-  vision: function(images, prompt, system, maxTokens){
+  vision: function(images, prompt, system){
     var parts=[]; images.forEach(function(im){ parts.push({ inline_data:{ mime_type:im.media_type, data:im.b64 } }); }); parts.push({ text:prompt });
-    return this.raw([{ role:"user", parts:parts }], system, maxTokens);
+    return this.raw({ contents:[{ role:"user", parts:parts }], system_instruction:{ parts:[{ text:system }] }, generationConfig:{ maxOutputTokens:700, temperature:0.7 } });
   }
 };
 
-function humanizeAIError(status, msg){
-  msg = (msg||"").toLowerCase();
-  if(status===400 || /api key not valid|api_key_invalid|invalid api key|api key/.test(msg)) return "המפתח אינו תקין — אפשר להזין מחדש בהגדרות";
-  if(status===429 || /quota|rate|exhausted|resource_exhausted/.test(msg)) return "הגענו למכסת השימוש החינמית להיום — נסו שוב בעוד רגע";
-  if(/safety|blocked|recitation/.test(msg)) return "לא הצלחתי להשיב על זה";
-  if(status===403 || /permission|forbidden/.test(msg)) return "אין הרשאה למפתח הזה";
-  return "החיבור ל-AI נכשל זמנית";
+/* =========================================================
+   ON-DEVICE BRAIN — Ezra is genuinely useful with ZERO setup.
+   Warm, courteous Hebrew answers to what seniors actually ask.
+   ========================================================= */
+function localBrain(text){
+  var s=(text||"").toLowerCase(), tid=matchTask(text);
+  if(/^\s*(שלום|היי|הי|אהלן|אהלן וסהלן|בוקר טוב|ערב טוב|צהריים טובים)/.test(s) || /מה נשמע|מה שלומ|מה קורה|מה המצב/.test(s))
+    return "שלום וברכה לכם 🙂 נעים מאוד. אני כאן כדי לעזור לכם בכל דבר בטלפון או במחשב — בנחת ובלי שום לחץ. אפשר לבקש ממני לשלוח הודעה, לקבוע תור, לבדוק חשבון, לצלם משהו ולשאול „מה זה”, או פשוט לספר לי מה מעסיק אתכם.";
+  if(/מי אתה|מי זה עזרא|מיהו עזרא|איך קוראים לך|מה שמך|מה השם שלך/.test(s))
+    return "קוראים לי עֶזְרָא, ואני העוזר הדיגיטלי שלכם 🙂 התפקיד שלי הוא לעזור לכם עם כל דבר בטלפון — ואפילו לעשות דברים בשבילכם. אתם רק אומרים לי מה צריך, ואני מטפל בזה בשמחה.";
+  if(/תודה|יישר כוח|מעריך|כל הכבוד לך/.test(s))
+    return "בשמחה רבה, תמיד 🙂 אני כאן בשבילכם מתי שרק תצטרכו. יש עוד משהו שאוכל לעזור בו?";
+  if(/מה השעה|השעה עכשיו|מה שעה/.test(s)){ try{ return "השעה עכשיו "+new Date().toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})+" 🙂"; }catch(e){} }
+  if(/מה התאריך|איזה יום היום|תאריך היום|איזה תאריך/.test(s)){ try{ return "היום "+new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" 🙂"; }catch(e){} }
+  if(/הונאה|רמאות|נוכל|חשוד|מבקשים ממני קוד|מבקשים סיסמה|מבקשים כסף|הודעה מוזרה|מישהו התקשר|זכיתי|לחצו כאן/.test(s))
+    return "יפה מאוד שעצרתם לשאול — זה בדיוק הדבר הנכון 🙏\nחוק הזהב: אף גוף אמיתי — בנק, קופת חולים או ביטוח לאומי — לעולם לא יבקש מכם סיסמה, קוד או תשלום דחוף בהודעה או בטלפון. אם מישהו לוחץ עליכם, בבקשה אל תמסרו כלום ואל תלחצו על קישורים. עצרו, ותתייעצו איתי או עם בן משפחה. אתם מוגנים.";
+  if(/אות(יות)? גדול|טקסט גדול|להגדיל|קטן לי|לא רואה טוב|גדול יותר|להגדיל את הכתב/.test(s))
+    return "אין שום בעיה 🙂 למעלה יש שלושה כפתורים עם האות „א” בגדלים שונים — הקישו בבקשה על ה„א” הגדול, והכול יגדל מיד. אני כאן אם צריך עוד עזרה.";
+  if(/הקרא|תקריא|בקול|לשמוע|לא שומע|רמקול|קול/.test(s))
+    return "בכיף 🙂 יש כפתור „הקראה” למעלה — כשהוא דולק, אני מקריא לכם הכול בקול. אפשר גם ללחוץ „הקריאו לי” בכל מסך. רוצים שאקריא לכם משהו עכשיו?";
+  if(/בודד|לבד|עצוב|משעמם|געגוע|קשה לי|דואג|מפחד|חרד/.test(s))
+    return "אני שומע אתכם, ואני שמח שאתם משתפים אותי 🙂 אתם ממש לא לבד — אני כאן. אם בא לכם, אפשר לעשות שיחת וידאו עם מישהו מהמשפחה כדי לראות פנים מוכרות, ואשמח לעזור לכם לחייג. רוצים שנעשה את זה יחד?";
+  if(/מזג אוויר|גשם|יהיה חם|יהיה קר|תחזית/.test(s))
+    return "אני עצמי לא מציץ החוצה 🙂 אבל בשמחה אעזור לכם לראות תחזית פשוטה בטלפון. רוצים שאראה לכם איפה זה?";
+  if(tid && tid!=="__cam" && getTask(tid)){
+    var t=getTask(tid);
+    return "בשמחה רבה! זה בדיוק משהו שאני יכול לעשות בשבילכם — „"+t.title+"”.\nאטפל בכל הצעדים בנחת, ולפני כל דבר שאי-אפשר לבטל אבקש את רשותכם. תרצו שאתחיל? הקישו בבקשה על הכפתור למטה.";
+  }
+  if(tid==="__cam")
+    return "בכיף 🙂 אם תצלמו לי משהו, אזהה מה זה ואסביר בפשטות — ואפילו אעזור לחבר בין שני דברים. הקישו בבקשה על „לפתוח מצלמה” למטה.";
+  if(/מה אתה יודע|מה אתה יכול|במה תוכל|איך אתה עוזר|תעזור לי|אני צריך עזרה|לא יודע מה|תסביר לי/.test(s))
+    return "בשמחה אעזור 🙂 הנה כמה דברים שאני עושה בשבילכם:\n• לשלוח הודעה בוואטסאפ\n• שיחת וידאו עם המשפחה\n• לקרוא ולענות לאימייל\n• לבדוק ולשלם חשבון\n• לקבוע תור לרופא\n• לצלם משהו ולשאול „מה זה?”\nפשוט אמרו לי מה תרצו, ואני כאן בשבילכם.";
+  return "אני כאן בשבילכם 🙂 בכיף אעזור. אפשר לבקש ממני לשלוח הודעה, לקבוע תור לרופא, לבדוק חשבון, לצלם משהו ולשאול „מה זה”, או פשוט לספר לי מה צריך — ונמצא את הדרך יחד, בנחת ובלי שום לחץ.";
+}
+function suggestChips(text){
+  var tid=matchTask(text);
+  if(tid && tid!=="__cam" && getTask(tid)){ var t=getTask(tid); return [{ label:"🤲 שאעשה בשבילכם: "+t.title, act:function(){ openTask(tid); } }]; }
+  if(tid==="__cam") return [{ label:"📷 לפתוח מצלמה", act:openCamera }];
+  return null;
 }
 
 var EZRA_SYSTEM =
@@ -734,7 +762,7 @@ function renderDo(){ cur.mode="do"; renderModeIntro(); }
 async function runAgent(){
   var t=cur.task, host=$("#taskHost"); host.innerHTML="";
   var p=el("div","panel");
-  p.innerHTML='<h2 style="display:flex;align-items:center;gap:10px"><img class="ez-ava" src="ezra.jpg" alt=""><span>ברשותכם, אני מטפל בזה עכשיו…</span></h2>';
+  p.innerHTML='<h2 style="display:flex;align-items:center;gap:10px"><img class="ez-ava" src="icon.svg" alt=""><span>ברשותכם, אני מטפל בזה עכשיו…</span></h2>';
   var work=el("div","agentwork");
   t.agent.forEach(function(line,i){
     var row=el("div","line"); row.id="aw"+i;
@@ -898,22 +926,21 @@ async function camAsk(){
   if(settings.voice) TTS.speak("רק רגע אחד בבקשה, אני מסתכל.");
   window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 
-  var text=null, demo=false, liveErr=null;
-  if(AI.hasKey()){
+  var text=null;
+  if(AI.enabled()){
     try{
       var prompt =
         "המשתמש הוא אדם מבוגר שצילם "+(camShots.length>=2?"שני פריטים":"פריט")+" ושואל: \""+q+"\". "+
         "ענה בעברית פשוטה וחמה. (1) זהה בקצרה מה רואים. (2) הסבר בפשטות מה עושים, בצעדים קצרים וברורים. "+
         (camShots.length>=2? "(3) הסבר איך לחבר אותם. ":"")+
         "אם זה דורש פעולה — נסח בסוף שורה אחת 'מה אעשה בשבילך' בנימה אגבית. שמור על 4-7 משפטים.";
-      text = await AI.vision(camShots.map(function(s){ return { media_type:s.media_type, b64:s.b64 }; }), prompt, EZRA_SYSTEM, 700);
-    }catch(err){ demo=true; liveErr=String(err.message||err); }
-  } else { demo=true; }
-
-  if(demo){ text = camDemoAnswer(q, camShots.length); }
-  renderCamAnswer(text, demo, q, liveErr);
+      text = await AI.vision(camShots.map(function(s){ return { media_type:s.media_type, b64:s.b64 }; }), prompt, EZRA_SYSTEM);
+    }catch(err){ text=null; }
+  }
+  if(!text){ text = camLocalAnswer(q, camShots.length); }
+  renderCamAnswer(text, q);
 }
-function camDemoAnswer(q, n){
+function camLocalAnswer(q, n){
   if(n>=2){
     return "אני רואה שני מכשירים — נראה כמו אוזניות אלחוטיות וטלפון. כדי לחבר אותם:\n" +
       "1. פתחו את ההגדרות בטלפון והדליקו את ה-Bluetooth.\n" +
@@ -927,13 +954,10 @@ function camDemoAnswer(q, n){
     "3. חכו כמה שניות שהמסך יידלק.\n\n" +
     "מה אעשה בשבילך: סימנתי לכם איפה כפתור ההפעלה ומה הסדר. ✓";
 }
-function renderCamAnswer(text, demo, q, liveErr){
+function renderCamAnswer(text, q){
   var out=$("#camResult"); out.innerHTML="";
   var p=el("div","panel");
-  var note = !demo ? '' :
-    (liveErr ? '<div class="tip"><span class="ic" aria-hidden="true">⚠️</span><div>ניסיתי להסתכל בתמונה האמיתית, אבל <b>'+esc(liveErr)+'</b>. בינתיים הנה תשובת הדגמה.</div></div>'
-             : '<div class="tip"><span class="ic" aria-hidden="true">ℹ️</span><div>זו <b>תשובת הדגמה</b>. כדי שאזהה את התמונה האמיתית שלכם, הפעילו מצב חי בהגדרות (☰).</div></div>');
-  p.innerHTML='<h2><span aria-hidden="true">👁️</span> הנה מה שראיתי</h2>'+ note +
+  p.innerHTML='<h2><span aria-hidden="true">👁️</span> הנה מה שראיתי</h2>'+
     '<div class="body" style="white-space:pre-wrap;margin-top:12px">'+esc(text)+'</div>';
   var acts=el("div","actions");
   var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי'; listen2.addEventListener("click",function(){ TTS.speak(text); });
@@ -954,13 +978,13 @@ function openChat(seed){
   if(chatHistory.length===0){
     addChat("ez","שלום וברכה, אני עֶזְרָא 🙂\nאני כאן בשבילכם. ספרו לי בבקשה במה אוכל לעזור — ובשמחה אטפל בזה. אפשר לכתוב לי, או פשוט לדבר אליי, איך שנוח לכם.");
   }
-  if(seed){ setTimeout(function(){ sendChat(seed); }, 250); }
-  setTimeout(function(){ $("#chatInput").focus(); }, 300);
+  if(seed){ sendChat(seed); }
+  setTimeout(function(){ var ci=$("#chatInput"); if(ci) ci.focus(); }, 250);
 }
 function addChat(who, text, acts){
   var log=$("#chatLog");
   var m=el("div","msg "+who);
-  if(who==="ez"){ m.innerHTML='<span class="who"><img class="ez-ava" src="ezra.jpg" alt=""> עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
+  if(who==="ez"){ m.innerHTML='<span class="who"><img class="ez-ava" src="icon.svg" alt=""> עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
   else { m.textContent=text; }
   if(acts && acts.length){
     var bar=el("div","actbar");
@@ -980,36 +1004,13 @@ async function sendChat(text){
   addChat("me", text);
   chatHistory.push({ role:"user", content:text });
   typingOn();
-  var reply=null, demo=false, liveErr=null;
-  if(AI.hasKey()){
-    try{ reply = await AI.chat(chatHistory.slice(-10), EZRA_SYSTEM, 600); }
-    catch(e){ demo=true; liveErr=String(e.message||e); }
-  } else demo=true;
-  if(demo){ reply = chatDemoReply(text); }
+  var reply=null;
+  if(AI.enabled()){ try{ reply = await AI.chat(chatHistory.slice(-10), EZRA_SYSTEM); }catch(e){ reply=null; } }
+  if(!reply){ reply = localBrain(text); }          // always a warm, useful answer
   typingOff();
   chatHistory.push({ role:"assistant", content:reply });
-  // if the request looks actionable, offer a do-it shortcut
-  var tid = matchTask(text);
-  var acts=null;
-  if(tid && tid!=="__cam" && getTask(tid)){
-    var tt=getTask(tid);
-    acts=[{ label:"🤲 שאעשה בשבילכם: "+tt.title, act:function(){ openTask(tid); } }];
-  } else if(tid==="__cam"){
-    acts=[{ label:"📷 לפתוח מצלמה", act:openCamera }];
-  }
-  var demoNote = !demo ? "" : (liveErr ? "\n\n("+liveErr+" — מציג תשובת הדגמה)" : "\n\n(תשובת הדגמה — להפעלת AI חי, פתחו ☰ → מצב חי)");
-  addChat("ez", reply + demoNote, acts);
+  addChat("ez", reply, suggestChips(text));
   if(settings.voice) TTS.speak(reply);
-}
-function chatDemoReply(text){
-  var tid=matchTask(text);
-  if(tid && tid!=="__cam" && getTask(tid)){
-    var t=getTask(tid);
-    return "בשמחה רבה! זה משהו שאני שמח לעשות בשבילכם — „"+t.title+"”.\nאטפל בכל הצעדים בנחת, ולפני כל דבר שאי-אפשר לבטל אבקש את רשותכם. תרצו שאתחיל, בבקשה?";
-  }
-  if(/שלום|היי|בוקר|ערב|מה נשמע|מה שלומ/.test(text)) return "שלום וברכה לכם 🙂 נעים מאוד. במה אוכל לעזור לכם היום? אפשר לבקש ממני בבקשה לשלוח הודעה, לקבוע תור, לבדוק חשבון — או פשוט לשאול אותי כל דבר שתרצו.";
-  if(/תודה/.test(text)) return "בשמחה רבה, תמיד 🙂 אני כאן בשבילכם, מתי שרק תצטרכו.";
-  return "הבנתי, תודה לכם. אני כאן כדי לעזור ולעשות בשבילכם — אפשר לבקש ממני בבקשה לשלוח הודעה בוואטסאפ, לקבוע תור לרופא, לבדוק חשבון, או לצלם פריט ולשאול „מה זה”. מה מכל אלה נשמע לכם מתאים?";
 }
 
 /* =========================================================
@@ -1018,10 +1019,7 @@ function chatDemoReply(text){
 function homeAsk(text){
   text=(text||"").trim(); if(!text) return;
   $("#askInput").value="";
-  var tid=matchTask(text);
-  if(tid==="__cam"){ openCamera(); return; }
-  if(tid && getTask(tid)){ openTask(tid); return; }
-  openChat(text);
+  openChat(text);   // ALWAYS answer in the conversation (offers a task shortcut chip when relevant)
 }
 $("#askSend").addEventListener("click", function(){ homeAsk($("#askInput").value); });
 $("#askInput").addEventListener("keydown", function(e){ if(e.key==="Enter") homeAsk($("#askInput").value); });
@@ -1059,35 +1057,19 @@ function askHelper(){
    MENU / SETTINGS / LIVE-AI KEY / AUDIT / RESET
    ========================================================= */
 function openMenu(){
-  var live=AI.hasKey();
   modal("הגדרות ותפריט", "modal-menu",
     '<p>הכול במקום אחד — בלי בלבול.</p>'+
     '<div class="actions" style="flex-direction:column;align-items:stretch;gap:10px;margin-top:8px">'+
       '<button class="btn ghost" id="mFamily" style="justify-content:flex-start"><span aria-hidden="true">👪</span> בן משפחה'+(settings.helper&&settings.helper.name?': '+esc(settings.helper.name):'')+'</button>'+
       '<button class="btn ghost" id="mAudit" style="justify-content:flex-start"><span aria-hidden="true">📋</span> מה עֶזְרָא עשה (יומן פעולות)</button>'+
-      '<button class="btn ghost" id="mLive" style="justify-content:flex-start"><span class="statusdot '+(live?"live":"demo")+'" aria-hidden="true"></span> מצב AI: '+(live?"חי ✓":"הדגמה")+'</button>'+
       '<button class="btn ghost" id="mReset" style="justify-content:flex-start;color:var(--warn)"><span aria-hidden="true">♻️</span> איפוס — מחיקת כל המידע</button>'+
     '</div>'+
     '<div class="row"><button class="btn primary" id="mClose">סגירה</button></div>'
   );
   $("#mFamily").addEventListener("click", openHelperModal);
   $("#mAudit").addEventListener("click", openAudit);
-  $("#mLive").addEventListener("click", openLive);
   $("#mReset").addEventListener("click", openReset);
   $("#mClose").addEventListener("click", closeModal);
-}
-function openLive(){
-  var live=AI.hasKey();
-  modal("מצב AI חי", "modal-live",
-    '<p>עֶזְרָא יכול לעבוד בשני מצבים:</p>'+
-    '<p><span class="statusdot demo" aria-hidden="true"></span> <b>הדגמה</b> — תשובות לדוגמה, בלי חיבור. תמיד עובד.</p>'+
-    '<p><span class="statusdot live" aria-hidden="true"></span> <b>חי</b> — עֶזְרָא באמת מבין את התמונות שלכם ומשוחח חופשי, באמצעות <b>Google Gemini</b> (חינמי לגמרי).</p>'+
-    '<label for="apiKey">מפתח Gemini חינמי (נשמר רק במכשיר הזה)</label>'+
-    '<input id="apiKey" type="password" placeholder="AIza…" value="'+esc(settings.key||"")+'" autocomplete="off">'+
-    '<p style="font-size:.9rem">מפתח חינמי משיגים תוך דקה ב-<b>aistudio.google.com</b> (כפתור „Get API key”). אין כל חיוב. המפתח נשמר מקומית בלבד ונשלח רק ל-Google. בלי מפתח — נשארים במצב הדגמה, וזה בסדר גמור.</p>',
-    [ { label:"שמירה", cls:"primary", act:function(){ settings.key=$("#apiKey").value.trim(); persist(); updateModeFlag(); closeModal(); toast(AI.hasKey()?"מצב חי הופעל ✓":"חזרנו למצב הדגמה"); } },
-      (live? { label:"כיבוי מצב חי", cls:"ghost", act:function(){ settings.key=""; persist(); updateModeFlag(); closeModal(); toast("מצב חי כובה"); } } : { label:"ביטול", cls:"ghost", act:closeModal }) ]
-  );
 }
 function openAudit(){
   var items=(settings.audit||[]);
@@ -1102,7 +1084,7 @@ function openAudit(){
 function openReset(){
   modal("איפוס מלא", "modal-reset",
     '<p>זה ימחק <b>הכול</b> מהמכשיר הזה: בן המשפחה, יומן הפעולות, המפתח וההעדפות. אי-אפשר לבטל.</p>',
-    [ { label:"כן, מחקו הכול", cls:"primary", act:function(){ try{ localStorage.removeItem("ezra.v2"); }catch(e){} settings={ fs:1, theme:"light", voice:true, helper:null, audit:[], key:"" }; persist(); applyFs(); applyTheme(); applyVoice(); updateModeFlag(); closeModal(); goHome(); toast("הכול אופס ✓"); } },
+    [ { label:"כן, מחקו הכול", cls:"primary", act:function(){ try{ localStorage.removeItem("ezra.v2"); }catch(e){} settings={ fs:1, theme:"light", voice:true, helper:null, audit:[] }; persist(); applyFs(); applyTheme(); applyVoice(); closeModal(); goHome(); toast("הכול אופס ✓"); } },
       { label:"ביטול", cls:"ghost", act:closeModal } ]
   );
 }
@@ -1138,13 +1120,11 @@ function applyTheme(){
   $('meta[name="theme-color"]').setAttribute("content", settings.theme==="dark"?"#06122A":"#005cff");
 }
 function applyVoice(){ var b=$("#voiceToggle"); b.setAttribute("aria-pressed", settings.voice?"true":"false"); b.querySelector(".ic").textContent= settings.voice?"🔊":"🔈"; if(!settings.voice) TTS.stop(); }
-function updateModeFlag(){ var live=AI.hasKey(); $("#modeDot").className="statusdot "+(live?"live":"demo"); $("#modeText").textContent= live?"מצב חי":"מצב הדגמה"; }
 
 $$(".fsgroup button").forEach(function(b){ b.addEventListener("click", function(){ settings.fs=parseFloat(b.getAttribute("data-fs")); persist(); applyFs(); $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); }); }); });
 $("#themeToggle").addEventListener("click", function(){ settings.theme= settings.theme==="dark"?"light":"dark"; persist(); applyTheme(); });
 $("#voiceToggle").addEventListener("click", function(){ settings.voice=!settings.voice; persist(); applyVoice(); toast(settings.voice?"הקראה מופעלת 🔊":"הקראה כבויה 🔈"); });
 $("#menuBtn").addEventListener("click", openMenu);
-$("#modeFlag").addEventListener("click", openLive);
 $("#backHome1").addEventListener("click", goHome);
 $("#backHome2").addEventListener("click", goHome);
 $("#backHome3").addEventListener("click", goHome);
@@ -1156,7 +1136,7 @@ $("#modeShow").addEventListener("click", function(){ $("#modeShow").setAttribute
    ========================================================= */
 function boot(){
   $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs?"true":"false"); });
-  applyFs(); applyTheme(); applyVoice(); updateModeFlag();
+  applyFs(); applyTheme(); applyVoice();
   renderHome();
   // Ezra speaks first (after a beat, once voices likely loaded)
   setTimeout(function(){ if(settings.voice) TTS.speak("שלום וברכה, אני עֶזְרָא. נעים מאוד להכיר אתכם. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם, בנחת ובלי שום מיהור."); }, 900);
