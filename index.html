@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#005cff">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <title>עֶזְרָא — העוזר שעושה בשבילכם</title>
 <meta name="description" content="עֶזְרָא — עוזר חכם בעברית פשוטה שלא רק מסביר, אלא עושה בשבילכם. מאת 3Shamrocks Studio.">
 <link rel="manifest" href="manifest.json">
@@ -318,11 +320,11 @@ footer.credit .cr b{ color:var(--ink); }
       <div class="avatar"><img src="icon.svg" alt="עֶזְרָא — העוזר שלכם" width="132" height="132"></div>
       <h1 id="greetTitle">שלום וברכה, אני <span class="accent">עֶזְרָא</span> 🙂</h1>
       <p class="lead" id="greetLead">נעים מאוד להכיר. אני כאן כדי לעזור לכם — ובשמחה גם <b>אעשה בשבילכם</b>. ספרו לי בבקשה מה תרצו, ואני אדאג לזה — בנחת ובלי שום לחץ.</p>
-      <div class="askbar">
+      <form class="askbar" id="askForm" autocomplete="off">
         <input id="askInput" type="text" inputmode="text" placeholder="ספרו לי בבקשה, במה אוכל לעזור?" aria-label="כתבו מה תרצו לעשות" enterkeyhint="send">
-        <button class="iconbtn mic" id="askMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
-        <button class="iconbtn send" id="askSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
-      </div>
+        <button type="button" class="iconbtn mic" id="askMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
+        <button type="submit" class="iconbtn send" id="askSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
+      </form>
       <span class="vhint" id="vhint" aria-live="polite"></span>
     </div>
 
@@ -380,11 +382,11 @@ footer.credit .cr b{ color:var(--ink); }
     </div>
     <div class="chat">
       <div class="chatlog" id="chatLog" aria-live="polite"></div>
-      <div class="askbar" style="margin-top:16px">
+      <form class="askbar" id="chatForm" style="margin-top:16px" autocomplete="off">
         <input id="chatInput" type="text" placeholder="כתבו לי, ואני אטפל בזה…" aria-label="כתבו הודעה" enterkeyhint="send">
-        <button class="iconbtn mic" id="chatMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
-        <button class="iconbtn send" id="chatSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
-      </div>
+        <button type="button" class="iconbtn mic" id="chatMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
+        <button type="submit" class="iconbtn send" id="chatSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
+      </form>
     </div>
   </section>
 
@@ -483,7 +485,7 @@ function localBrain(text){
     return "בשמחה רבה, תמיד 🙂 אני כאן בשבילכם מתי שרק תצטרכו. יש עוד משהו שאוכל לעזור בו?";
   if(/מה השעה|השעה עכשיו|מה שעה/.test(s)){ try{ return "השעה עכשיו "+new Date().toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})+" 🙂"; }catch(e){} }
   if(/מה התאריך|איזה יום היום|תאריך היום|איזה תאריך/.test(s)){ try{ return "היום "+new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" 🙂"; }catch(e){} }
-  if(/הונאה|רמאות|נוכל|חשוד|מבקשים ממני קוד|מבקשים סיסמה|מבקשים כסף|הודעה מוזרה|מישהו התקשר|זכיתי|לחצו כאן/.test(s))
+  if(/הונאה|רמאות|נוכל|חשוד|מתחזה|פישינג|זכיתי|לחצו כאן|לחץ כאן|מבקש(?:ים|ת|)\s*(?:ממני\s*)?(?:קוד|סיסמה|כסף|פרטים|אשראי)|קוד\s*אימות|הודעה\s*(?:מוזרה|חשודה)|מייל\s*(?:מוזר|חשוד)|מישהו\s*התקשר|רוצים\s*כסף/.test(s))
     return "יפה מאוד שעצרתם לשאול — זה בדיוק הדבר הנכון 🙏\nחוק הזהב: אף גוף אמיתי — בנק, קופת חולים או ביטוח לאומי — לעולם לא יבקש מכם סיסמה, קוד או תשלום דחוף בהודעה או בטלפון. אם מישהו לוחץ עליכם, בבקשה אל תמסרו כלום ואל תלחצו על קישורים. עצרו, ותתייעצו איתי או עם בן משפחה. אתם מוגנים.";
   if(/אות(יות)? גדול|טקסט גדול|להגדיל|קטן לי|לא רואה טוב|גדול יותר|להגדיל את הכתב/.test(s))
     return "אין שום בעיה 🙂 למעלה יש שלושה כפתורים עם האות „א” בגדלים שונים — הקישו בבקשה על ה„א” הגדול, והכול יגדל מיד. אני כאן אם צריך עוד עזרה.";
@@ -708,7 +710,7 @@ function matchTask(s){
 /* =========================================================
    VIEWS
    ========================================================= */
-function showView(id){ $$(".view").forEach(function(v){ v.classList.toggle("active", v.id===id); }); window.scrollTo({top:0,behavior:"smooth"}); }
+function showView(id){ $$(".view").forEach(function(v){ v.classList.toggle("active", v.id===id); }); window.scrollTo({top:0,behavior:"auto"}); }
 function goHome(){ TTS.stop(); showView("homeView"); $("#vhint").textContent=""; }
 
 /* ---- Home grid ---- */
@@ -924,7 +926,7 @@ async function camAsk(){
   var out=$("#camResult");
   out.innerHTML='<div class="panel"><div class="typing" aria-label="עֶזְרָא מסתכל"><span></span><span></span><span></span></div><p class="body" style="margin-top:10px">עֶזְרָא מסתכל על התמונה…</p></div>';
   if(settings.voice) TTS.speak("רק רגע אחד בבקשה, אני מסתכל.");
-  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  window.scrollTo({top:document.body.scrollHeight,behavior:"auto"});
 
   var text=null;
   if(AI.enabled()){
@@ -961,12 +963,12 @@ function renderCamAnswer(text, q){
     '<div class="body" style="white-space:pre-wrap;margin-top:12px">'+esc(text)+'</div>';
   var acts=el("div","actions");
   var listen2=el("button","btn listen"); listen2.innerHTML='<span aria-hidden="true">🔊</span> הקריאו לי'; listen2.addEventListener("click",function(){ TTS.speak(text); });
-  var again=el("button","btn ghost"); again.textContent="לצלם שוב"; again.addEventListener("click",function(){ camShots=[]; renderShots(); $("#camResult").innerHTML=""; window.scrollTo({top:0,behavior:"smooth"}); });
+  var again=el("button","btn ghost"); again.textContent="לצלם שוב"; again.addEventListener("click",function(){ camShots=[]; renderShots(); $("#camResult").innerHTML=""; window.scrollTo({top:0,behavior:"auto"}); });
   acts.appendChild(listen2); acts.appendChild(again);
   p.appendChild(acts); out.appendChild(p);
   logAction("צילמתם פריט ושאלתם: „"+q+"” — הסברתי וזיהיתי בשבילכם");
   if(settings.voice) TTS.speak(text);
-  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  window.scrollTo({top:document.body.scrollHeight,behavior:"auto"});
 }
 
 /* =========================================================
@@ -993,14 +995,20 @@ function addChat(who, text, acts){
   }
   log.appendChild(m);
   log.parentElement.scrollIntoView(false);
-  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+  window.scrollTo({top:document.body.scrollHeight,behavior:"auto"});
   return m;
 }
-function typingOn(){ var log=$("#chatLog"); var t=el("div","typing"); t.id="typingDots"; t.innerHTML='<span></span><span></span><span></span>'; log.appendChild(t); window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+function typingOn(){ var log=$("#chatLog"); var t=el("div","typing"); t.id="typingDots"; t.innerHTML='<span></span><span></span><span></span>'; log.appendChild(t); window.scrollTo({top:document.body.scrollHeight,behavior:"auto"}); }
 function typingOff(){ var t=$("#typingDots"); if(t) t.remove(); }
 
+var sending=false;
 async function sendChat(text){
   text=(text||"").trim(); if(!text) return;
+  if(sending) return;              // send ONCE — ignore double-taps / repeat submits
+  sending=true;
+  try{ await doSend(text); } finally { sending=false; }
+}
+async function doSend(text){
   addChat("me", text);
   chatHistory.push({ role:"user", content:text });
   typingOn();
@@ -1021,12 +1029,12 @@ function homeAsk(text){
   $("#askInput").value="";
   openChat(text);   // ALWAYS answer in the conversation (offers a task shortcut chip when relevant)
 }
-$("#askSend").addEventListener("click", function(){ homeAsk($("#askInput").value); });
-$("#askInput").addEventListener("keydown", function(e){ if(e.key==="Enter") homeAsk($("#askInput").value); });
+/* form submit = one reliable path for BOTH the send button and the phone
+   keyboard's "send" key (no double-firing, no page reload). */
+$("#askForm").addEventListener("submit", function(e){ e.preventDefault(); homeAsk($("#askInput").value); });
 $("#askMic").addEventListener("click", function(){ listen(function(s){ $("#askInput").value=s; setTimeout(function(){ homeAsk(s); }, 400); }, $("#vhint")); });
 
-$("#chatSend").addEventListener("click", function(){ var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); });
-$("#chatInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); } });
+$("#chatForm").addEventListener("submit", function(e){ e.preventDefault(); var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); });
 $("#chatMic").addEventListener("click", function(){ listen(function(s){ $("#chatInput").value=s; }, null); });
 
 /* =========================================================
@@ -1083,7 +1091,7 @@ function openAudit(){
 }
 function openReset(){
   modal("איפוס מלא", "modal-reset",
-    '<p>זה ימחק <b>הכול</b> מהמכשיר הזה: בן המשפחה, יומן הפעולות, המפתח וההעדפות. אי-אפשר לבטל.</p>',
+    '<p>זה ימחק <b>הכול</b> מהמכשיר הזה: בן המשפחה, יומן הפעולות וההעדפות. אי-אפשר לבטל.</p>',
     [ { label:"כן, מחקו הכול", cls:"primary", act:function(){ try{ localStorage.removeItem("ezra.v2"); }catch(e){} settings={ fs:1, theme:"light", voice:true, helper:null, audit:[] }; persist(); applyFs(); applyTheme(); applyVoice(); closeModal(); goHome(); toast("הכול אופס ✓"); } },
       { label:"ביטול", cls:"ghost", act:closeModal } ]
   );
