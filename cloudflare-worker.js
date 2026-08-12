@@ -1,29 +1,16 @@
 /**
- * עֶזְרָא / Ezra — free server-side AI proxy (Cloudflare Worker).
+ * עֶזְרָא / Ezra — Claude AI proxy (Cloudflare Worker)
+ * Holds the Anthropic API key server-side. Ezra POSTs here; worker injects key.
  *
- * Holds Dave's FREE Google Gemini key SERVER-SIDE so the app can use real AI
- * WITHOUT ever exposing a key or asking the (senior) user for anything.
- *
- * The Ezra web app POSTs a Gemini request body to this Worker; the Worker
- * injects the key and forwards it to Google, then returns Gemini's response.
- *
- * ── ONE-TIME SETUP (free, ~3 minutes, no billing) ────────────────────────
- * 1. Get a free Gemini key: https://aistudio.google.com  →  "Get API key".
- * 2. Create a free Cloudflare account: https://dash.cloudflare.com
- * 3. Workers & Pages → Create → Worker → paste this file → Deploy.
- * 4. The Worker → Settings → Variables and Secrets → add a SECRET named
- *      GEMINI_KEY   = <your AIza… key>
- *    (Use "Encrypt"/Secret so it's never visible.)
- * 5. Copy the Worker URL (e.g. https://ezra-ai.<you>.workers.dev).
- * 6. In index.html set:  var PROXY_URL = "https://ezra-ai.<you>.workers.dev";
- *    commit + push. Done — Ezra now uses real AI, invisibly, for free.
- *
- * If you never do this, Ezra still works great on its built-in on-device brain.
- * ─────────────────────────────────────────────────────────────────────────
+ * ONE-TIME SETUP (~3 minutes):
+ * 1. dash.cloudflare.com → Workers & Pages → Create → Worker → paste this → Deploy
+ * 2. Worker → Settings → Variables and Secrets → add Secret:
+ *      ANTHROPIC_KEY = sk-ant-api03-... (your Anthropic key)
+ * 3. Copy Worker URL → in index.html set PROXY_URL = "https://ezra-ai.YOUR_NAME.workers.dev"
+ * 4. Commit + push. Done. Ezra now runs Claude 3 Haiku — fast, cheap, Hebrew-native.
  */
 
-const MODEL = "gemini-2.0-flash";
-// Lock this to the live site so the key can't be borrowed by other sites:
+const MODEL = "claude-haiku-4-5";
 const ALLOWED_ORIGIN = "https://3shamrocksstudio.github.io";
 
 export default {
@@ -31,26 +18,67 @@ export default {
     const cors = {
       "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "content-type",
+      "Access-Control-Allow-Headers": "Content-Type",
     };
-    if (request.method === "OPTIONS") return new Response(null, { headers: cors });
-    if (request.method !== "POST") return new Response("POST only", { status: 405, headers: cors });
-    if (!env.GEMINI_KEY) return new Response("Missing GEMINI_KEY secret", { status: 500, headers: cors });
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors });
+    }
+
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405, headers: cors });
+    }
 
     let body;
-    try { body = await request.text(); } catch (_) { return new Response("bad body", { status: 400, headers: cors }); }
+    try { body = await request.json(); } catch {
+      return new Response("Bad JSON", { status: 400, headers: cors });
+    }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${env.GEMINI_KEY}`;
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body,
-    });
+    // Build Anthropic request from Ezra payload
+    const messages = body.messages || [];
+    const system = body.system || `אתה עֶזְרָא, עוזר דיגיטלי חכם וסבלני לאנשים מבוגרים בישראל.
+אתה מדבר עברית פשוטה וברורה. אתה מבצע פעולות דיגיטליות בשבילם בצורה ישירה.
+כשמישהו מבקש לשלוח הודעה, לחפש מידע, או לבצע פעולה — אתה עושה את זה.
+תשובותיך קצרות, חמות, וברורות. לא יותר מ-3 משפטים.`;
 
-    const text = await upstream.text();
-    return new Response(text, {
-      status: upstream.status,
-      headers: { ...cors, "content-type": "application/json" },
-    });
-  },
+    const anthropicPayload = {
+      model: MODEL,
+      max_tokens: 512,
+      system,
+      messages: messages.map(m => ({
+        role: m.role === "model" ? "assistant" : "user",
+        content: m.parts ? m.parts[0].text : (m.content || "")
+      }))
+    };
+
+    try {
+      const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": env.ANTHROPIC_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify(anthropicPayload),
+      });
+
+      const data = await upstream.json();
+
+      // Return in Gemini-compatible format so Ezra needs no changes
+      const text = data.content?.[0]?.text || "";
+      const geminiCompat = {
+        candidates: [{ content: { parts: [{ text }] } }]
+      };
+
+      return new Response(JSON.stringify(geminiCompat), {
+        status: 200,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    } catch (e) {
+      return new Response(JSON.stringify({ error: String(e) }), {
+        status: 502,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+  }
 };
