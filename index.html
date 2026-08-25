@@ -279,6 +279,19 @@ footer.credit .cr b{ color:var(--ink); }
 .toast.show{ opacity:1; transform:none; }
 
 @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+
+/* ── API key settings panel ── */
+.api-panel{background:rgba(0,92,255,.08);border:1px solid rgba(0,92,255,.2);
+  border-radius:16px;padding:16px;margin:16px 0}
+.api-label{font-size:13px;font-weight:700;color:var(--c1,#005cff);margin-bottom:8px;display:block}
+.api-row{display:flex;gap:8px}
+.api-input{flex:1;height:44px;padding:0 12px;border-radius:12px;border:1px solid rgba(0,92,255,.3);
+  background:rgba(255,255,255,.08);color:inherit;font-size:14px;direction:ltr}
+.api-btn{height:44px;padding:0 16px;border-radius:12px;background:#005cff;
+  color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap}
+.api-status{font-size:11px;margin-top:6px;min-height:14px}
+.api-ok{color:#4ade80}.api-err{color:#ef4444}
+
 </style>
 </head>
 <body>
@@ -453,9 +466,9 @@ var AI = {
   enabled:function(){ return /^https?:\/\//.test(PROXY_URL||""); },
   raw: async function(payload){
     if(!this.enabled()) throw new Error("noproxy");
-    var res = await fetch(PROXY_URL,{ method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(payload) });
-    if(!res.ok) throw new Error("proxy "+res.status);
-    var data = await res.json();
+    var res = await (PROXY_URL ? fetch(PROXY_URL,{ method:"POST", headers:{ "content-type":"application/json" }, body:JSON.stringify(payload) }) : callDirectAnthropic(payload.contents||payload.messages||[]));
+    if(!res.ok && res.status) throw new Error("proxy "+res.status);
+    var data = res.candidates ? res : await res.json();
     var c=(data.candidates||[])[0];
     if(!c || !c.content) throw new Error("empty");
     var out=""; (c.content.parts||[]).forEach(function(p){ if(p.text) out+=p.text; });
@@ -1201,5 +1214,75 @@ boot();
 
 })();
 </script>
+
+<div class="api-panel" style="direction:rtl">
+  <span class="api-label">🤖 חיבור AI ישיר — Anthropic</span>
+  <p style="font-size:12px;color:var(--fg2,rgba(255,255,255,.55));margin-bottom:10px;line-height:1.6">
+    הדביקו מפתח API מ-<b>console.anthropic.com</b> כדי להפעיל AI חכם.<br>
+    המפתח נשמר רק במכשיר זה, לא נשלח לשרת חיצוני.
+  </p>
+  <div class="api-row">
+    <input class="api-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." 
+      dir="ltr" autocomplete="off" spellcheck="false"
+      oninput="document.getElementById('api-status').textContent=''">
+    <button class="api-btn" onclick="saveAPIKey(document.getElementById('api-key-input').value)">שמור</button>
+  </div>
+  <div class="api-status" id="api-status"></div>
+</div>
+<script>
+(function(){
+  var stored = localStorage.getItem && localStorage.getItem('ezra_anthropic_key');
+  if(stored){ 
+    var inp = document.getElementById('api-key-input');
+    if(inp) inp.value = stored;
+    var st = document.getElementById('api-status');
+    if(st){ st.textContent='✓ מפתח שמור ופעיל'; st.className='api-status api-ok'; }
+  }
+})();
+</script>
 </body>
 </html>
+
+<script>
+/* ── DIRECT ANTHROPIC PATCH ── */
+var ANTHROPIC_ENDPOINT = "https://api.anthropic.com/v1/messages";
+var ANTHROPIC_MODEL = "claude-haiku-4-5";
+
+function getStoredAPIKey() {
+  try { return localStorage.getItem('ezra_anthropic_key') || ''; } catch(e){ return ''; }
+}
+
+async function callDirectAnthropic(messages) {
+  var key = getStoredAPIKey();
+  if (!key) throw new Error('no_key');
+  var payload = {
+    model: ANTHROPIC_MODEL,
+    max_tokens: 512,
+    system: "אתה עֶזְרָא, עוזר דיגיטלי חכם וסבלני לאנשים מבוגרים בישראל. אתה מדבר עברית פשוטה וברורה. תשובותיך קצרות, חמות, וברורות — לא יותר מ-3 משפטים.",
+    messages: messages.map(function(m){ return { role: m.role==='model'?'assistant':'user', content: m.parts?m.parts[0].text:(m.content||'') }; })
+  };
+  var res = await fetch(ANTHROPIC_ENDPOINT, {
+    method: 'POST',
+    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('anthropic_' + res.status);
+  var data = await res.json();
+  var text = data.content && data.content[0] ? data.content[0].text : '';
+  return { candidates: [{ content: { parts: [{ text: text }] } }] };
+}
+
+function saveAPIKey(key) {
+  try {
+    if (key) {
+      localStorage.setItem('ezra_anthropic_key', key.trim());
+      document.getElementById('api-status').textContent = '✓ שמור';
+      document.getElementById('api-status').className = 'api-status api-ok';
+    } else {
+      localStorage.removeItem('ezra_anthropic_key');
+      document.getElementById('api-status').textContent = 'מפתח נמחק';
+      document.getElementById('api-status').className = 'api-status api-err';
+    }
+  } catch(e){}
+}
+</script>
