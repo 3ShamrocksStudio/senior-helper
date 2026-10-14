@@ -26,17 +26,17 @@
    © 2026 3Shamrocks Studio.
    ============================================================ */
 
-/* ---- Design tokens: clean, confident, modern-tech, AAA-leaning ---- */
+/* ---- Design tokens: warm, trusted, companion-first, AAA-leaning ---- */
 :root{
-  --bg:#F4F7FF;            /* soft tech-blue-tinted white, no glare */
+  --bg:#F5F3EE;            /* warm cream-neutral — welcoming, not clinical */
   --surface:#FFFFFF;
   --ink:#041933;           /* official navy — ~15:1 on white */
   --ink-soft:#3D5066;
-  --line:#D8E2F2;
+  --line:#DDD8CE;          /* warm-tinted line, not cold blue */
   --brand:#005cff;         /* official electric blue */
   --brand-deep:#0048cc;
   --brand-ink:#003BA6;
-  --brand-soft:#E6EEFF;
+  --brand-soft:#EBF0FF;    /* softer, less saturated brand wash */
   --on-brand:#FFFFFF;
   --ok:#0E7C3A;
   --ok-soft:#E2F5E9;
@@ -44,19 +44,23 @@
   --warn-soft:#FFF3DE;
   --warn-line:#F0C36A;
   --focus:#003BA6;
-  --shadow:0 8px 28px rgba(4,25,51,.10);
-  --shadow-lg:0 16px 48px rgba(4,25,51,.16);
+  --warm:#FFF5E4;          /* warm amber surface — hero, promise, specials */
+  --warm-deep:#FFE8BE;     /* warm amber border */
+  --warm-text:#7A4A00;     /* warm amber text label */
+  --shadow:0 8px 28px rgba(4,25,51,.09);
+  --shadow-lg:0 16px 48px rgba(4,25,51,.14);
   --radius:34px;          /* generous rounded cards/panels — circular language */
   --pill:999px;           /* fully round buttons, inputs, chips */
   --tap:64px;
   --fs:1;                  /* user font-scale multiplier */
 }
 [data-theme="dark"]{
-  --bg:#06122A; --surface:#0E1F3D; --ink:#EAF1FF; --ink-soft:#A9BBD6;
-  --line:#23375E; --brand:#5C92FF; --brand-deep:#7FACFF; --brand-ink:#A9C6FF;
-  --brand-soft:#142A52; --on-brand:#06122A; --ok:#5FD08C; --ok-soft:#10301F;
+  --bg:#0D1A2E; --surface:#142235; --ink:#EAF1FF; --ink-soft:#A9BBD6;
+  --line:#263D5E; --brand:#5C92FF; --brand-deep:#7FACFF; --brand-ink:#A9C6FF;
+  --brand-soft:#182D52; --on-brand:#0D1A2E; --ok:#5FD08C; --ok-soft:#10301F;
   --warn:#F2C265; --warn-soft:#2E2410; --warn-line:#5A4A22;
-  --focus:#A9C6FF; --shadow:0 8px 28px rgba(0,0,0,.5); --shadow-lg:0 16px 48px rgba(0,0,0,.6);
+  --warm:#1E1A0E; --warm-deep:#3A2E10; --warm-text:#F0C265;
+  --focus:#A9C6FF; --shadow:0 8px 28px rgba(0,0,0,.55); --shadow-lg:0 16px 48px rgba(0,0,0,.65);
 }
 
 *{box-sizing:border-box}
@@ -110,15 +114,27 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 @keyframes fade{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
 
 /* ---------- Hero ---------- */
-.hero{ text-align:center; padding:30px 8px 6px; }
-.hero .avatar{ width:132px; height:132px; margin:0 auto 14px; border-radius:50%; overflow:hidden; border:4px solid var(--surface); box-shadow:0 0 0 4px var(--brand), var(--shadow-lg); background:var(--brand-soft); position:relative; }
-.hero .avatar img{ width:100%; height:100%; object-fit:cover; object-position:50% 50%; display:block; }
-.hero .avatar::after{ content:""; position:absolute; inset-block-end:8px; inset-inline-end:10px; width:20px; height:20px; border-radius:50%; background:var(--ok); border:3px solid var(--surface); } /* gentle "here for you" presence dot */
+.hero{
+  text-align:center; padding:36px 16px 18px;
+  background:linear-gradient(170deg, var(--warm) 0%, transparent 56%);
+  border-radius:0 0 var(--radius) var(--radius);
+  margin:0 -16px 8px;
+}
+.hero .avatar{
+  width:136px; height:136px; margin:0 auto 18px; border-radius:50%; overflow:hidden;
+  border:3px solid var(--warm-deep); box-shadow:0 0 0 4px var(--surface), var(--shadow-lg);
+  background:var(--warm); position:relative;
+}
+.hero .avatar svg,.hero .avatar img{ width:100%; height:100%; display:block; }
+.hero .avatar::after{
+  content:""; position:absolute; inset-block-end:10px; inset-inline-end:10px;
+  width:22px; height:22px; border-radius:50%; background:var(--ok); border:3px solid var(--surface);
+} /* "I'm here for you" presence dot */
 /* reusable small portrait of Ezra (chat, working states) */
-.ez-ava{ width:38px; height:38px; border-radius:50%; object-fit:cover; object-position:50% 50%; border:2px solid var(--brand); background:var(--brand-soft); flex:none; }
-.hero h1{ font-size:clamp(1.7rem,5vw,2.4rem); margin:.1em 0 .15em; line-height:1.15; color:var(--ink); }
+.ez-ava{ width:38px; height:38px; border-radius:50%; border:2px solid var(--brand); background:var(--warm); flex:none; overflow:hidden; }
+.hero h1{ font-size:clamp(1.8rem,5vw,2.5rem); margin:.1em 0 .15em; line-height:1.15; color:var(--ink); font-weight:800; }
 .hero h1 .accent{ color:var(--brand); }
-.hero p.lead{ font-size:1.15rem; color:var(--ink-soft); margin:.2em auto .6em; max-width:34ch; }
+.hero p.lead{ font-size:1.18rem; color:var(--ink-soft); margin:.2em auto .8em; max-width:32ch; line-height:1.5; }
 
 /* speak / type bar */
 .askbar{ display:flex; gap:10px; max-width:620px; margin:14px auto 6px; align-items:stretch; }
@@ -150,10 +166,10 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 /* feature camera card spans full width */
 .card.cam{ grid-column:1/-1; background:linear-gradient(150deg, var(--brand-soft), var(--surface)); border-color:var(--brand); }
 
-/* ---------- Promise strip ---------- */
-.promise{ margin:26px 0 2px; background:var(--surface); border:2px solid var(--line); border-radius:var(--radius); padding:20px 22px; display:flex; gap:16px; align-items:center; box-shadow:var(--shadow); }
+/* ---------- Promise strip — warm to signal safety & trust ---------- */
+.promise{ margin:26px 0 2px; background:var(--warm); border:2px solid var(--warm-deep); border-radius:var(--radius); padding:20px 22px; display:flex; gap:16px; align-items:center; box-shadow:var(--shadow); }
 .promise .ic{ font-size:2rem; flex:none; }
-.promise b{ color:var(--brand-ink); }
+.promise b{ color:var(--warm-text); }
 .promise p{ margin:0; font-size:1.02rem; }
 
 /* ---------- Detail / task view ---------- */
@@ -242,17 +258,28 @@ header.bar{ position:sticky; top:0; z-index:30; background:color-mix(in srgb, va
 .qchip{ border:2px solid var(--line); background:var(--surface); color:var(--ink); border-radius:99px; padding:10px 16px; font-weight:800; font-size:1rem; min-height:52px; }
 .qchip[aria-pressed="true"]{ background:var(--brand); color:var(--on-brand); border-color:var(--brand); }
 
+/* ---------- Mic invite pulse (idle) ---------- */
+@keyframes mic-invite{
+  0%,100%{ box-shadow:0 0 0 0 rgba(0,92,255,.45); }
+  55%{ box-shadow:0 0 0 14px rgba(0,92,255,0); }
+}
+.iconbtn.mic{ animation:mic-invite 2.6s ease-out infinite; }
+.iconbtn.mic.listening{ animation:none; box-shadow:0 0 0 6px rgba(0,92,255,.25); }
+
 /* ---------- Conversation view ---------- */
 .chat{ max-width:680px; margin:0 auto; }
 .chatlog{ display:flex; flex-direction:column; gap:12px; padding:8px 2px 4px; }
 .msg{ max-width:88%; padding:15px 19px; border-radius:28px; font-size:1.08rem; line-height:1.55; box-shadow:var(--shadow); white-space:pre-wrap; }
-.msg.ez{ background:var(--surface); border:2px solid var(--line); align-self:flex-start; border-bottom-inline-start-radius:12px; }
-.msg.me{ background:var(--brand); color:var(--on-brand); align-self:flex-end; border-bottom-inline-end-radius:12px; }
+/* RTL fix: in RTL flex-column, flex-end = physical LEFT, flex-start = physical RIGHT.
+   Ezra (incoming) → physical LEFT; Me (outgoing) → physical RIGHT.             */
+.msg.ez{ background:var(--surface); border:2px solid var(--line); align-self:flex-end; border-bottom-inline-end-radius:12px; }
+.msg.me{ background:var(--brand); color:var(--on-brand); align-self:flex-start; border-bottom-inline-start-radius:12px; }
 .msg.ez .who{ display:flex; align-items:center; gap:8px; font-size:.92rem; font-weight:800; color:var(--brand); margin-bottom:8px; }
 .msg.ez .who .ez-ava{ width:34px; height:34px; }
 .msg .actbar{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
 .msg .miniact{ border:2px solid var(--brand); background:var(--brand-soft); color:var(--brand-ink); border-radius:var(--pill); padding:8px 18px; font-weight:800; font-size:.95rem; min-height:48px; }
-.typing{ align-self:flex-start; display:inline-flex; gap:6px; padding:16px 18px; background:var(--surface); border:2px solid var(--line); border-radius:20px; }
+/* RTL fix: typing indicator also belongs on Ezra's side = physical LEFT */
+.typing{ align-self:flex-end; display:inline-flex; gap:6px; padding:16px 18px; background:var(--surface); border:2px solid var(--line); border-radius:20px; }
 .typing span{ width:10px; height:10px; border-radius:50%; background:var(--brand); animation:bob 1s infinite; }
 .typing span:nth-child(2){ animation-delay:.15s } .typing span:nth-child(3){ animation-delay:.3s }
 @keyframes bob{ 0%,80%,100%{ transform:translateY(0); opacity:.5 } 40%{ transform:translateY(-7px); opacity:1 } }
@@ -338,9 +365,40 @@ footer.credit .cr b{ color:var(--ink); }
   <!-- ======= HOME ======= -->
   <section id="homeView" class="view active" aria-label="מסך הבית">
     <div class="hero">
-      <div class="avatar"><img src="icon.svg" alt="עֶזְרָא — העוזר שלכם" width="132" height="132"></div>
-      <h1 id="greetTitle">שלום וברכה, אני <span class="accent">עֶזְרָא</span> 🙂</h1>
-      <p class="lead" id="greetLead">נעים מאוד להכיר. אני כאן כדי לעזור לכם — ובשמחה גם <b>אעשה בשבילכם</b>. ספרו לי בבקשה מה תרצו, ואני אדאג לזה — בנחת ובלי שום לחץ.</p>
+      <div class="avatar" role="img" aria-label="עֶזְרָא — העוזר שלכם">
+        <!-- Warm illustrated persona: friendly face, brand blue on warm amber — NOT a cold logo mark -->
+        <svg viewBox="0 0 136 136" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="bgG" cx="50%" cy="38%" r="65%">
+              <stop offset="0%" stop-color="#FFF8EC"/>
+              <stop offset="100%" stop-color="#FFE4B0"/>
+            </radialGradient>
+            <radialGradient id="faceG" cx="50%" cy="40%" r="55%">
+              <stop offset="0%" stop-color="#1A6EFF"/>
+              <stop offset="100%" stop-color="#005cff"/>
+            </radialGradient>
+          </defs>
+          <!-- warm background -->
+          <circle cx="68" cy="68" r="68" fill="url(#bgG)"/>
+          <!-- body / shoulders — gentle, grounded presence -->
+          <ellipse cx="68" cy="118" rx="46" ry="30" fill="#005cff" opacity=".16"/>
+          <ellipse cx="68" cy="112" rx="36" ry="22" fill="#005cff" opacity=".22"/>
+          <!-- head — large, approachable -->
+          <circle cx="68" cy="52" r="30" fill="url(#faceG)"/>
+          <!-- eyes — warm, friendly -->
+          <circle cx="59" cy="47" r="4.5" fill="#fff" opacity=".95"/>
+          <circle cx="77" cy="47" r="4.5" fill="#fff" opacity=".95"/>
+          <circle cx="60.2" cy="48" r="2" fill="#003BA6"/>
+          <circle cx="78.2" cy="48" r="2" fill="#003BA6"/>
+          <!-- smile -->
+          <path d="M 56 59 Q 68 70 80 59" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>
+          <!-- subtle cheek warmth -->
+          <circle cx="51" cy="58" r="7" fill="#FF8C42" opacity=".18"/>
+          <circle cx="85" cy="58" r="7" fill="#FF8C42" opacity=".18"/>
+        </svg>
+      </div>
+      <h1 id="greetTitle">שלום, אני <span class="accent">עֶזְרָא</span> 🙂</h1>
+      <p class="lead" id="greetLead">אני כאן בשבילכם — ובשמחה גם <b>אעשה בשבילכם</b>. פשוט ספרו לי מה צריך.</p>
       <form class="askbar" id="askForm" autocomplete="off">
         <input id="askInput" type="text" inputmode="text" placeholder="ספרו לי בבקשה, במה אוכל לעזור?" aria-label="כתבו מה תרצו לעשות" enterkeyhint="send">
         <button type="button" class="iconbtn mic" id="askMic" aria-label="דברו אליי"><span aria-hidden="true">🎤</span></button>
@@ -429,7 +487,7 @@ footer.credit .cr b{ color:var(--ink); }
 /* =========================================================
    BRAND — name lives in ONE place (Hebrew leads).
    ========================================================= */
-var BRAND = { he:"עֶזְרָא", en:"EZRA", tagline:"Bridging Technology for Senior Citizens" };
+var BRAND = { he:"עֶזְרָא", en:"EZRA", tagline:"אני כאן בשבילכם" };
 
 /* tiny helpers */
 var $ = function(s,r){ return (r||document).querySelector(s); };
@@ -833,7 +891,7 @@ function renderDo(){ cur.mode="do"; renderModeIntro(); }
 async function runAgent(){
   var t=cur.task, host=$("#taskHost"); host.innerHTML="";
   var p=el("div","panel");
-  p.innerHTML='<h2 style="display:flex;align-items:center;gap:10px"><img class="ez-ava" src="icon.svg" alt=""><span>ברשותכם, אני מטפל בזה עכשיו…</span></h2>';
+  p.innerHTML='<h2 style="display:flex;align-items:center;gap:10px">'+EZ_AVA_SVG+'<span>ברשותכם, אני מטפל בזה עכשיו…</span></h2>';
   var work=el("div","agentwork");
   t.agent.forEach(function(line,i){
     var row=el("div","line"); row.id="aw"+i;
@@ -1052,10 +1110,13 @@ function openChat(seed){
   if(seed){ sendChat(seed); }
   setTimeout(function(){ var ci=$("#chatInput"); if(ci) ci.focus(); }, 250);
 }
+/* warm mini-avatar SVG — friendly face, used in chat and agent-work panels */
+var EZ_AVA_SVG = '<svg class="ez-ava" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img"><defs><radialGradient id="cBg" cx="50%" cy="38%" r="65%"><stop offset="0%" stop-color="#FFF8EC"/><stop offset="100%" stop-color="#FFE4B0"/></radialGradient></defs><circle cx="19" cy="19" r="19" fill="url(#cBg)"/><circle cx="19" cy="15" r="9.5" fill="#005cff"/><circle cx="15.8" cy="13.5" r="1.6" fill="#fff" opacity=".92"/><circle cx="22.2" cy="13.5" r="1.6" fill="#fff" opacity=".92"/><path d="M 14.5 17.5 Q 19 22 23.5 17.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="19" cy="31" rx="12" ry="7" fill="#005cff" opacity=".18"/></svg>';
+
 function addChat(who, text, acts){
   var log=$("#chatLog");
   var m=el("div","msg "+who);
-  if(who==="ez"){ m.innerHTML='<span class="who"><img class="ez-ava" src="icon.svg" alt=""> עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
+  if(who==="ez"){ m.innerHTML='<span class="who">'+EZ_AVA_SVG+' עֶזְרָא</span>'+esc(text).replace(/\n/g,"<br>"); }
   else { m.textContent=text; }
   if(acts && acts.length){
     var bar=el("div","actbar");
@@ -1101,10 +1162,18 @@ function homeAsk(text){
 /* form submit = one reliable path for BOTH the send button and the phone
    keyboard's "send" key (no double-firing, no page reload). */
 $("#askForm").addEventListener("submit", function(e){ e.preventDefault(); homeAsk($("#askInput").value); });
-$("#askMic").addEventListener("click", function(){ listen(function(s){ $("#askInput").value=s; setTimeout(function(){ homeAsk(s); }, 400); }, $("#vhint")); });
+$("#askMic").addEventListener("click", function(){
+  var mic=this; mic.classList.add("listening");
+  listen(function(s){ mic.classList.remove("listening"); $("#askInput").value=s; setTimeout(function(){ homeAsk(s); }, 400); }, $("#vhint"));
+  setTimeout(function(){ mic.classList.remove("listening"); }, 8000); // safety reset
+});
 
 $("#chatForm").addEventListener("submit", function(e){ e.preventDefault(); var v=$("#chatInput").value; $("#chatInput").value=""; sendChat(v); });
-$("#chatMic").addEventListener("click", function(){ listen(function(s){ $("#chatInput").value=s; }, null); });
+$("#chatMic").addEventListener("click", function(){
+  var mic=this; mic.classList.add("listening");
+  listen(function(s){ mic.classList.remove("listening"); $("#chatInput").value=s; }, null);
+  setTimeout(function(){ mic.classList.remove("listening"); }, 8000);
+});
 
 /* =========================================================
    FAMILY HELPER
@@ -1194,7 +1263,7 @@ function applyTheme(){
   if(settings.theme==="dark") document.documentElement.setAttribute("data-theme","dark");
   else document.documentElement.removeAttribute("data-theme");
   var b=$("#themeToggle"); b.setAttribute("aria-pressed", settings.theme==="dark"?"true":"false"); b.querySelector(".ic").textContent= settings.theme==="dark"?"☀️":"🌙";
-  $('meta[name="theme-color"]').setAttribute("content", settings.theme==="dark"?"#06122A":"#005cff");
+  $('meta[name="theme-color"]').setAttribute("content", settings.theme==="dark"?"#0D1A2E":"#005cff");
 }
 function applyVoice(){ var b=$("#voiceToggle"); b.setAttribute("aria-pressed", settings.voice?"true":"false"); b.querySelector(".ic").textContent= settings.voice?"🔊":"🔈"; if(!settings.voice) TTS.stop(); }
 
@@ -1215,8 +1284,11 @@ function boot(){
   $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs?"true":"false"); });
   applyFs(); applyTheme(); applyVoice();
   renderHome();
+  // Initial voice hint — invites interaction right away
+  var vhintEl = $("#vhint");
+  if(vhintEl) vhintEl.textContent = "דברו אליי — הקישו על המיקרופון 🎤 — או כתבו למטה";
   // Ezra speaks first (after a beat, once voices likely loaded)
-  setTimeout(function(){ if(settings.voice) TTS.speak("שלום וברכה, אני עֶזְרָא. נעים מאוד להכיר אתכם. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם, בנחת ובלי שום מיהור."); }, 900);
+  setTimeout(function(){ if(settings.voice) TTS.speak("שלום וברכה, אני עֶזְרָא. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם."); }, 900);
 }
 boot();
 
