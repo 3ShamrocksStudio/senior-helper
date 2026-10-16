@@ -317,6 +317,11 @@ footer.credit .cr b{ color:var(--ink); }
 
 @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
 
+/* ---------- Quick-suggest chips (home askbar) ---------- */
+.qsugg-row{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px; }
+.qsugg{ background:var(--brand-soft); color:var(--brand-ink); border:2px solid var(--brand); border-radius:99px; padding:10px 18px; font-size:1rem; font-weight:800; min-height:52px; cursor:pointer; white-space:nowrap; transition:background .15s,transform .1s; }
+.qsugg:active{ background:var(--brand); color:var(--on-brand); transform:scale(.97); }
+
 /* ── API key settings panel ── */
 .api-panel{background:rgba(0,92,255,.08);border:1px solid rgba(0,92,255,.2);
   border-radius:16px;padding:16px;margin:16px 0}
@@ -407,6 +412,12 @@ footer.credit .cr b{ color:var(--ink); }
         <button type="submit" class="iconbtn send" id="askSend" aria-label="שליחה"><span aria-hidden="true">➤</span></button>
       </form>
       <span class="vhint" id="vhint" aria-live="polite"></span>
+      <div class="qsugg-row" id="suggChips" aria-label="נושאים לדוגמה">
+        <button class="qsugg" onclick="homeAsk('שלחו הודעה בוואטסאפ')">💬 הודעה בוואטסאפ</button>
+        <button class="qsugg" onclick="homeAsk('שלמו חשבון ארנונה או חשמל')">📄 תשלום חשבון</button>
+        <button class="qsugg" onclick="homeAsk('קיבעו לי תור לרופא')">🏥 תור לרופא</button>
+        <button class="qsugg" onclick="homeAsk('שלחו מייל')">✉️ שלחו מייל</button>
+      </div>
     </div>
 
     <h2 class="section-h">עזרה מהירה <span class="pill">אני אעשה את זה</span></h2>
@@ -1205,19 +1216,52 @@ function askHelper(){
    MENU / SETTINGS / LIVE-AI KEY / AUDIT / RESET
    ========================================================= */
 function openMenu(){
+  var aiActive = typeof getStoredAPIKey === "function" && getStoredAPIKey && getStoredAPIKey().length > 10;
   modal("הגדרות ותפריט", "modal-menu",
     '<p>הכול במקום אחד — בלי בלבול.</p>'+
     '<div class="actions" style="flex-direction:column;align-items:stretch;gap:10px;margin-top:8px">'+
       '<button class="btn ghost" id="mFamily" style="justify-content:flex-start"><span aria-hidden="true">👪</span> בן משפחה'+(settings.helper&&settings.helper.name?': '+esc(settings.helper.name):'')+'</button>'+
       '<button class="btn ghost" id="mAudit" style="justify-content:flex-start"><span aria-hidden="true">📋</span> מה עֶזְרָא עשה (יומן פעולות)</button>'+
+      '<button class="btn ghost" id="mAI" style="justify-content:flex-start"><span aria-hidden="true">🔑</span> הגדרת AI חכם'+(aiActive?' <span style="color:#4ade80;font-size:.88rem;">● פעיל</span>':'')+'</button>'+
       '<button class="btn ghost" id="mReset" style="justify-content:flex-start;color:var(--warn)"><span aria-hidden="true">♻️</span> איפוס — מחיקת כל המידע</button>'+
     '</div>'+
     '<div class="row"><button class="btn primary" id="mClose">סגירה</button></div>'
   );
   $("#mFamily").addEventListener("click", openHelperModal);
   $("#mAudit").addEventListener("click", openAudit);
+  $("#mAI").addEventListener("click", openAISettings);
   $("#mReset").addEventListener("click", openReset);
   $("#mClose").addEventListener("click", closeModal);
+}
+
+function openAISettings(){
+  closeModal();
+  var cur = (typeof getStoredAPIKey === "function") ? getStoredAPIKey() : "";
+  var hasKey = cur && cur.length > 10;
+  modal("הגדרת AI חכם 🔑", "modal-ai",
+    '<p style="font-size:1rem;line-height:1.6">הדביקו מפתח API מ-<b>console.anthropic.com</b> כדי להפעיל AI חכם לכל שאלה. המפתח נשמר רק במכשיר זה — ואף אחד לא רואה אותו.</p>'+
+    '<div class="api-row" style="margin-top:14px">'+
+    '<input class="api-input" id="mAIKey" type="password" placeholder="sk-ant-api03-…" dir="ltr" autocomplete="off" style="flex:1;font-size:1rem;" />'+
+    '</div>'+
+    '<div id="mAIStatus" style="margin-top:8px;font-size:.95rem;min-height:20px;color:'+(hasKey?'#4ade80':'var(--ink-soft)')+'">'+(hasKey?'✓ מפתח שמור ופעיל — AI חכם מופעל':'')+'</div>',
+    [ { label:"שמור", cls:"primary", act:function(){
+        var k=($("#mAIKey").value||"").trim();
+        saveAPIKey(k);
+        var st=$("#mAIStatus");
+        if(k&&k.length>10){ st.textContent="✓ נשמר! AI חכם פעיל"; st.style.color="#4ade80"; }
+        else { st.textContent="מפתח נמחק — Ezra ישתמש במוח המובנה"; st.style.color="var(--ink-soft)"; }
+        setTimeout(closeModal,1800);
+      }},
+      { label:"מחק מפתח", cls:"ghost", act:function(){
+        saveAPIKey("");
+        var st=$("#mAIStatus"); st.textContent="מפתח נמחק"; st.style.color="var(--ink-soft)";
+        setTimeout(closeModal,1200);
+      }},
+      { label:"ביטול", cls:"ghost", act:closeModal }
+    ]
+  );
+  // pre-fill if key exists
+  if(hasKey && cur){ try{ $("#mAIKey").value=cur; }catch(e){} }
 }
 function openAudit(){
   var items=(settings.audit||[]);
@@ -1286,11 +1330,25 @@ function boot(){
   $$(".fsgroup button").forEach(function(x){ x.setAttribute("aria-pressed", parseFloat(x.getAttribute("data-fs"))===settings.fs?"true":"false"); });
   applyFs(); applyTheme(); applyVoice();
   renderHome();
-  // Initial voice hint — invites interaction right away
+  // Detect first visit (no prior audit entries = fresh install)
+  var isFirstVisit = !settings.audit || settings.audit.length === 0;
+  // Voice hint
   var vhintEl = $("#vhint");
-  if(vhintEl) vhintEl.textContent = "דברו אליי — הקישו על המיקרופון 🎤 — או כתבו למטה";
+  if(vhintEl){
+    vhintEl.textContent = isFirstVisit
+      ? "👋 לחצו על 🎤 ודברו אליי — או בחרו משימה למטה"
+      : "דברו אליי — הקישו על המיקרופון 🎤 — או כתבו למטה";
+  }
+  // First-visit: pulse the mic button more prominently for a few seconds
+  if(isFirstVisit){
+    var mic = $("#askMic");
+    if(mic){ mic.style.transform="scale(1.15)"; setTimeout(function(){ mic.style.transform=""; }, 4000); }
+  }
   // Ezra speaks first (after a beat, once voices likely loaded)
-  setTimeout(function(){ if(settings.voice) TTS.speak("שלום וברכה, אני עֶזְרָא. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם."); }, 900);
+  var greeting = isFirstVisit
+    ? "שלום וברכה! אני עֶזְרָא — העוזר הדיגיטלי שלכם. אני יכול לשלוח הודעות, לשלם חשבונות, לקבוע תורים ועוד — הכל בשבילכם. פשוט ספרו לי מה צריך!"
+    : "שלום וברכה, אני עֶזְרָא. ספרו לי בבקשה במה אוכל לעזור — אני כאן בשבילכם.";
+  setTimeout(function(){ if(settings.voice) TTS.speak(greeting); }, 900);
 }
 boot();
 
